@@ -233,7 +233,7 @@ setup_user() {
   echo 'Adding sudoers user...'
   useradd -m -G wheel,storage,power -s /bin/bash $USER
   sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /etc/sudoers
-  echo "\nDefaults rootpw" >> /etc/sudoers
+  echo -e "\nDefaults rootpw" >> /etc/sudoers
   echo
   echo "Adding root password.."
   passwd
