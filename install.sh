@@ -14,7 +14,9 @@ DISTRO='Archlinux'
 
 # Install disk location.
 DISK='/dev/sda'
-
+BOOT_PART=${DISK}1
+ROOT_PART=${DISK}2
+    
 # Partitioning
 # Boot 100M or more
 BOOT_PART_SIZE=500M
@@ -31,7 +33,7 @@ MIRROR='GB'
 KEYMAP='us'
 
 # Locale.
-LOCALE='LANG=en_GB.UTF-8'
+LOCALE='en_GB.UTF-8'
 
 # Hostname.
 HOSTNAME='sporif-pc'
@@ -43,13 +45,22 @@ TIMEZONE='Europe/London'
 USER='sporif'
 
 # Graphics drivers
-#GRAPHICS="i915"
-#GRAPHICS="nouveau"
-#GRAPHICS="radeon"
-GRAPHICS="virtualbox-guest-utils virtualbox-guest-modules-arch"
+INTEL="i915"
+NVIDIA="nouveau"
+AMD="radeon"
+VIRTUALBOX='virtualbox-guest-utils virtualbox-guest-modules-arch'
+GRAPHICS=$VIRTUALBOX
 
-# Display Enviroment
-DISPLAY='plasma'
+# Xorg packages
+#XORG='xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm'
+XORG='xorg'
+
+# Desktop Enviroment
+PLASMA='plasma-desktop'
+DESKTOP=$PLASMA
+
+# Audio packages
+AUDIO='pulseaudio pulseaudio-alsa'
 
 # Essential Applications
 ESSENTIALS='konsole dolphin kate firefox'
@@ -70,11 +81,13 @@ startup() {
  Timezone              | %s
  User                  | %s
  Graphics              | %s
- Display               | %s
- Essential Apps        | %s
+ Xorg                  | %s
+ Desktop               | %s
+ Audio                 | %s
+ Essentials            | %s
 ==============================================
-  \n" "$DISTRO" "$DISK" "$BOOT_PART_SIZE" "$ROOT_PART_SIZE" "$ENCRYPTION" "$MIRROR" \
-  "$KEYMAP" "$HOSTNAME" "$TIMEZONE" "$USER" "$GRAPHICS" "$DISPLAY" "$ESSENTIALS"
+  \n" "$DISTRO" "$DISK" "$BOOT_PART_SIZE" "$ROOT_PART_SIZE" "$ENCRYPTION" "$MIRROR" "$KEYMAP" \
+  "$HOSTNAME" "$TIMEZONE" "$USER" "$GRAPHICS" "$XORG" "$DESKTOP" "$AUDIO" "$ESSENTIALS"
     lsblk
     echo
     read -p "Is this correct? (y/n):  " -n 1 -r
@@ -121,8 +134,6 @@ format_partition() {
     echo
     echo "Formatting partitions..."
     echo
-    BOOT_PART=${DISK}1
-    ROOT_PART=${DISK}2
     mkfs.vfat -F32 $BOOT_PART
     mkfs.ext4 $ROOT_PART
     echo 'Done!'
@@ -132,7 +143,7 @@ mount_partition() {
   echo
   echo "Mounting disks..."
   echo
-  mount ROOT_PART /mnt
+  mount $ROOT_PART /mnt
   mkdir -p /mnt/boot/efi
   mount $BOOT_PART /mnt/boot/efi
   echo
@@ -151,7 +162,7 @@ mirrorlist_update() {
 set_keymap() {
   echo
   echo 'Setting keymap...'
-  echo -e "KEYMAP=$KEYMAP" > /etc/vconsole.conf
+  echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
   echo
   echo "Done!"
 }
@@ -168,13 +179,15 @@ install_base() {
 _chroot() {
   echo
   echo 'Copying script to chroot...'
-  cp install.sh /mnt/root/install.sh
-  chmod +x /mnt/root/install.sh
+  PathToMe="${0}"
+  MyName="${0##*/}"
+  cp "$PathToMe" "/mnt/root/$MyName"
+  chmod +x "/mnt/root/$MyName"
   echo
   echo "Done!"
   echo
   echo 'Entering chroot...'
-  arch-chroot /mnt /root/install.sh setupchroot
+  arch-chroot /mnt "/root/$MyName" setupchroot
 }
 
 set_timezone() {
@@ -191,6 +204,8 @@ set_locale() {
   echo 'Setting locale...'
   sed -i "s/^#$LOCALE/$LOCALE/" /etc/locale.gen
   locale-gen
+  echo LANG=$LOCALE > /etc/locale.conf
+  export LANG=$LOCALE
   echo
   echo "Done!"
 }
@@ -198,14 +213,14 @@ set_locale() {
 set_hostname() {
   echo
   echo 'Setting hostname...'
-  echo -e "$HOSTNAME" >> /etc/hostname
+  echo "$HOSTNAME" > /etc/hostname
   echo
   echo "Done!"
 }
 
 setup_pacman() {
   echo
-  echo 'Initialize pacman...'
+  echo 'Initializing pacman...'
   pacman-key --init
   pacman-key --populate archlinux
   sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
@@ -215,9 +230,16 @@ setup_pacman() {
 
 setup_user() {
   echo
-  echo 'Add sudoers user...'
+  echo 'Adding sudoers user...'
   useradd -m -G wheel,storage,power -s /bin/bash $USER
   sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /etc/sudoers
+  echo "\nDefaults rootpw" >> /etc/sudoers
+  echo
+  echo "Adding root password.."
+  passwd
+  echo
+  echo "Adding user password.."
+  passwd $USER
   echo
   echo "Done!"
 }
@@ -234,9 +256,8 @@ install_network() {
 install_graphics() {
   echo
   echo 'Installing graphics...'
-  pacman -Sy --noconfirm "$GRAPHICS"
-  if [[ $GRAPHICS == "virtualbox-guest-modules-arch virtualbox-guest-utils" ]]
-  then
+  pacman -Sy --noconfirm $GRAPHICS
+  if [[ $GRAPHICS == $VIRTUALBOX ]]; then
     systemctl enable vboxservice.service
   fi
   echo
@@ -245,39 +266,51 @@ install_graphics() {
 
 install_xorg() {
     echo
-    echo 'Installing graphics...'
-    pacman -Sy --noconfirm xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm
+    echo 'Installing xorg...'
+    pacman -Sy --noconfirm $XORG
     echo
     echo "Done!"
 }
 
 install_desktop() {
   echo
-  echo "Installing $DISPLAY..."
-  pacman -Sy --noconfirm $DISPLAY
-  if [[ $DISPLAY == plasma ]]
-  then
+  echo "Installing Desktop Environment..."
+  pacman -Sy --noconfirm $DESKTOP
+  if [[ $DESKTOP == $PLASMA ]]; then
     pacman -Sy --noconfirm sddm
+    echo -e '[Theme]\nCurrent=breeze' > /etc/sddm.conf
     systemctl enable sddm.service
   fi
   echo
   echo "Done!"
 }
 
+install_audio() {
+    echo
+    echo 'Installing audio...'
+    pacman -Sy --noconfirm $AUDIO
+    echo
+    echo "Done!"
+}
+
 install_essentials() {
     echo 
     echo "Installing essential applications..."
-    pacman -Sy --noconfirm "$ESSENTIALS"
+    pacman -Sy --noconfirm $ESSENTIALS
+    echo
+    echo "Done!"
 }
 
 install_boot() {
   echo
-  echo 'Installing boot...'
+  echo 'Installing refind...'
   get_uuid="$(blkid -s UUID -o value "$ROOT_PART")"
-  mkinitcpio -p linux
   pacman -Sy --noconfirm refind-efi
-  refind-install --usedefault $BOOT_PART --alldrivers
-  cat << EOF > /path/to/your/file
+  refind-install $BOOT_PART
+  if [[ $GRAPHICS == $VIRTUALBOX ]]; then
+    echo '\EFI\\refind\\refind_x64.efi' > /boot/efi/startup.nsh
+  fi
+  cat << EOF > /boot/refind_linux.conf
 "Boot using default options"     "root=UUID=${get_uuid} rw add_efi_memmap"
 "Boot using fallback initramfs"  "root=UUID=${get_uuid} rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
 "Boot to terminal"               "root=UUID=${get_uuid} rw add_efi_memmap systemd.unit=multi-user.target"
@@ -293,8 +326,7 @@ _reboot() {
 ======================\n"
   read -p "Reboot? (y/n):  " -n 1 -r
   echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]
-    then
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
       printf 'Done!\n'
       exit 0
     else
@@ -306,15 +338,13 @@ _reboot() {
 }
 
 # Is root running.
-if [ "$(id -u)" -ne 0 ]
-then
+if [ "$(id -u)" -ne 0 ]; then
   echo -e "\n\nRun as root!\n\n"
   exit -1
 fi
 
 # Check if chroot before startup.
-if [[ $1 == setupchroot ]]
-then
+if [[ $1 == setupchroot ]]; then
   echo "Starting chroot setup..."
   set_timezone
   set_locale
@@ -324,6 +354,7 @@ then
   install_network
   install_graphics
   install_desktop
+  install_audio
   install_essentials
   install_boot
   exit 0
