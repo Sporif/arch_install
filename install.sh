@@ -124,8 +124,8 @@ format_partition() {
     BOOT_PART=${DISK}2
     ROOT_PART=${DISK}1
     echo
-    echo BOOT_PART
-    echo ROOT_PART
+    echo $BOOT_PART
+    echo $ROOT_PART
     echo
     mkfs.vfat -F32 $BOOT_PART
     mkfs.ext4 $ROOT_PART
