@@ -135,6 +135,10 @@ format_partition() {
     echo
     BOOT_PART=${DISK}2
     ROOT_PART=${DISK}1
+    echo
+    echo BOOT_PART
+    echo ROOT_PART
+    echo
     mkfs.vfat -F32 $BOOT_PART
     mkfs.ext4 $ROOT_PART
     echo 'Done!'
@@ -145,7 +149,7 @@ mount_partition() {
   echo "Mounting disks..."
   echo
   mount ROOT_PART /mnt
-  mkdir /mnt/boot/efi
+  mkdir -p /mnt/boot/efi
   mount $BOOT_PART /mnt/boot/efi
   echo
   echo "Partition mount successful!"
