@@ -330,7 +330,8 @@ _reboot() {
       printf 'Done!\n'
       exit 0
     else
-      echo
+      echo "Unmounting /mnt"
+      umount -R /mnt
       echo "Restarting in 3 seconds..."
       sleep 3
       reboot
