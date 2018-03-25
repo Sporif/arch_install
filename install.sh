@@ -306,7 +306,7 @@ install_boot() {
   echo 'Installing refind...'
   get_uuid="$(blkid -s UUID -o value "$ROOT_PART")"
   pacman -Sy --noconfirm refind-efi
-  refind-install $BOOT_PART
+  refind-install
   if [[ $GRAPHICS == $VIRTUALBOX ]]; then
     echo '\EFI\\refind\\refind_x64.efi' > /boot/efi/startup.nsh
   fi
