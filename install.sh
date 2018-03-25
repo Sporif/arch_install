@@ -308,7 +308,7 @@ install_boot() {
   pacman -Sy --noconfirm refind-efi
   refind-install
   if [[ $GRAPHICS == $VIRTUALBOX ]]; then
-    echo '\EFI\\refind\\refind_x64.efi' > /boot/efi/startup.nsh
+    echo '\EFI\refind\refind_x64.efi' > /boot/efi/startup.nsh
   fi
   cat << EOF > /boot/refind_linux.conf
 "Boot using default options"     "root=UUID=${get_uuid} rw add_efi_memmap"
