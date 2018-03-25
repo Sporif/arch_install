@@ -353,6 +353,7 @@ if [[ $1 == setupchroot ]]; then
   setup_user
   install_network
   install_graphics
+  install_xorg
   install_desktop
   install_audio
   install_essentials
