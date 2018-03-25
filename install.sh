@@ -108,18 +108,6 @@ setup_systemclock() {
 }
 
 parition() {
-    echo 'Checking for efi...'
-    efi_files="/sys/firmware/efi/efivars"
-    
-    if [[ -f $efi_files ]]; then
-        echo "$efi_files found."
-        echo
-    else
-        echo "$efi_files not found."
-        echo "Not booted in EFI mode, exiting..."
-        exit 1
-    fi
-
     echo "Partitioning for EFI..."
     parted -s "$DISK" \
     mklabel gpt \
