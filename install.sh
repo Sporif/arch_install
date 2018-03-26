@@ -267,7 +267,7 @@ install_graphics() {
     echo 'Installing graphics...'
     pacman -Sy --noconfirm $GRAPHICS
     if [[ $GRAPHICS == $VIRTUALBOX ]]; then
-        systemctl enable vboxservice.service
+        systemctl enable vboxservice
     fi
     echo
     echo "Done!"
@@ -288,7 +288,7 @@ install_desktop() {
     if [[ $DESKTOP == $PLASMA ]]; then
         pacman -Sy --noconfirm sddm
         echo -e '[Theme]\nCurrent=breeze' > /etc/sddm.conf
-        systemctl enable sddm.service
+        systemctl enable sddm
     fi
     echo
     echo "Done!"
@@ -312,7 +312,7 @@ install_network() {
     if [[ $DESKTOP == $PLASMA ]]; then
         pacman -Sy --noconfirm plasma-nm
     fi
-    systemctl enable NetworkManager.service
+    systemctl enable NetworkManager
     echo
     echo "Done!"
 }
@@ -324,7 +324,7 @@ install_bluetooth() {
     if [[ $DESKTOP == $PLASMA ]]; then
         pacman -Sy --noconfirm bluedevil
     fi
-    systemctl enable bluetooth.service
+    systemctl enable bluetooth
     echo
     echo "Done!"
 }
