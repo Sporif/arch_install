@@ -262,18 +262,6 @@ setup_user() {
     echo "Done!"
 }
 
-install_network() {
-    echo
-    echo 'Installing network...'
-    pacman -Sy --noconfirm networkmanager
-    if [[ $DESKTOP == $PLASMA ]]; then
-        pacman -Sy --noconfirm plasma-nm
-    fi
-    systemctl enable NetworkManager.service
-    echo
-    echo "Done!"
-}
-
 install_graphics() {
     echo
     echo 'Installing graphics...'
@@ -313,6 +301,30 @@ install_audio() {
     if [[ $DESKTOP == $PLASMA ]]; then
         pacman -Sy --noconfirm plasma-pa
     fi
+    echo
+    echo "Done!"
+}
+
+install_network() {
+    echo
+    echo 'Installing network...'
+    pacman -Sy --noconfirm networkmanager
+    if [[ $DESKTOP == $PLASMA ]]; then
+        pacman -Sy --noconfirm plasma-nm
+    fi
+    systemctl enable NetworkManager.service
+    echo
+    echo "Done!"
+}
+
+install_bluetooth() {
+    echo
+    echo 'Installing bluetooth...'
+    pacman -Sy --noconfirm bluez bluez-utils
+    if [[ $DESKTOP == $PLASMA ]]; then
+        pacman -Sy --noconfirm bluedevil
+    fi
+    systemctl enable bluetooth.service
     echo
     echo "Done!"
 }
@@ -378,11 +390,12 @@ if [[ $1 == setupchroot ]]; then
     set_trim
     setup_pacman
     setup_user
-    install_network
     install_graphics
     install_xorg
     install_desktop
     install_audio
+    install_network
+    install_bluetooth
     install_essentials
     install_boot
     exit 0
