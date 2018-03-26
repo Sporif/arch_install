@@ -102,18 +102,18 @@ startup() {
 }
 
 setup() {
+    setup_systemclock
     parition
     format_partition
     mount_partition
-    mirrorlist_update
-    set_keymap
+    update_mirrorlist
     install_base
     _chroot
 }
 
 setup_systemclock() {
     echo
-    echo "Update the system clock..."
+    echo "Updating system clock..."
     echo
     timedatectl set-ntp true
     echo
@@ -121,7 +121,7 @@ setup_systemclock() {
 }
 
 parition() {
-    echo "Partitioning for EFI..."
+    echo "Partitioning $DISK for EFI..."
     parted -s "$DISK" \
     mklabel gpt \
     mkpart ESP fat32 1M $BOOT_PART_SIZE \
@@ -141,7 +141,7 @@ format_partition() {
 
 mount_partition() {
   echo
-  echo "Mounting disks..."
+  echo "Mounting partitions..."
   echo
   mount $ROOT_PART /mnt
   mkdir -p /mnt/boot/efi
@@ -150,21 +150,13 @@ mount_partition() {
   echo "Partition mount successful!"
 }
 
-mirrorlist_update() {
+update_mirrorlist() {
   echo
   echo 'Updating mirrorlist...'
   rm /etc/pacman.d/mirrorlist
   wget https://www.archlinux.org/mirrorlist/?country=$MIRROR -O /etc/pacman.d/mirrorlist
   sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
   echo 'Done!'
-}
-
-set_keymap() {
-  echo
-  echo 'Setting keymap...'
-  echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
-  echo
-  echo "Done!"
 }
 
 install_base() {
@@ -188,6 +180,7 @@ _chroot() {
   echo
   echo 'Entering chroot...'
   arch-chroot /mnt "/root/$MyName" setupchroot
+  rm "/mnt/root/$MyName"
 }
 
 set_timezone() {
@@ -206,6 +199,14 @@ set_locale() {
   locale-gen
   echo LANG=$LOCALE > /etc/locale.conf
   export LANG=$LOCALE
+  echo
+  echo "Done!"
+}
+
+set_keymap() {
+  echo
+  echo 'Setting keymap...'
+  echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
   echo
   echo "Done!"
 }
@@ -235,10 +236,10 @@ setup_user() {
   sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /etc/sudoers
   echo -e "\nDefaults rootpw" >> /etc/sudoers
   echo
-  echo "Adding root password.."
+  echo "Add the root password"
   passwd
   echo
-  echo "Adding user password.."
+  echo "Add the user password"
   passwd $USER
   echo
   echo "Done!"
@@ -248,6 +249,9 @@ install_network() {
   echo
   echo 'Installing network...'
   pacman -Sy --noconfirm networkmanager
+  if [[ $DESKTOP == $PLASMA ]]; then
+    pacman -Sy --noconfirm plasma-nm
+  fi
   systemctl enable NetworkManager.service
   echo
   echo "Done!"
@@ -289,6 +293,9 @@ install_audio() {
     echo
     echo 'Installing audio...'
     pacman -Sy --noconfirm $AUDIO
+    if [[ $DESKTOP == $PLASMA ]]; then
+        pacman -Sy --noconfirm plasma-pa
+    fi
     echo
     echo "Done!"
 }
@@ -349,6 +356,7 @@ if [[ $1 == setupchroot ]]; then
   echo "Starting chroot setup..."
   set_timezone
   set_locale
+  set_keymap
   set_hostname
   setup_pacman
   setup_user
