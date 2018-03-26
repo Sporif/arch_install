@@ -114,7 +114,6 @@ setup() {
 setup_systemclock() {
     echo
     echo "Updating system clock..."
-    echo
     timedatectl set-ntp true
     echo
     echo "Done!"
@@ -140,132 +139,150 @@ format_partition() {
 }
 
 mount_partition() {
-  echo
-  echo "Mounting partitions..."
-  echo
-  mount $ROOT_PART /mnt
-  mkdir -p /mnt/boot/efi
-  mount $BOOT_PART /mnt/boot/efi
-  echo
-  echo "Partition mount successful!"
+    echo
+    echo "Mounting partitions..."
+    echo
+    mount $ROOT_PART /mnt
+    mkdir -p /mnt/boot/efi
+    mount $BOOT_PART /mnt/boot/efi
+    echo
+    echo "Partition mount successful!"
 }
 
 update_mirrorlist() {
-  echo
-  echo 'Updating mirrorlist...'
-  rm /etc/pacman.d/mirrorlist
-  wget https://www.archlinux.org/mirrorlist/?country=$MIRROR -O /etc/pacman.d/mirrorlist
-  sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
-  echo 'Done!'
+    echo
+    echo 'Updating mirrorlist...'
+    rm /etc/pacman.d/mirrorlist
+    wget https://www.archlinux.org/mirrorlist/?country=$MIRROR -O /etc/pacman.d/mirrorlist
+    sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
+    echo 'Done!'
 }
 
 install_base() {
-  echo
-  echo 'Installing base...'
-  pacstrap /mnt base base-devel
-  genfstab -U /mnt >> /mnt/etc/fstab
-  echo
-  echo "Done!"
+    echo
+    echo 'Installing base...'
+    pacstrap /mnt base base-devel
+    genfstab -U /mnt >> /mnt/etc/fstab
+    echo
+    echo "Done!"
 }
 
 _chroot() {
-  echo
-  echo 'Copying script to chroot...'
-  PathToMe="${0}"
-  MyName="${0##*/}"
-  cp "$PathToMe" "/mnt/root/$MyName"
-  chmod +x "/mnt/root/$MyName"
-  echo
-  echo "Done!"
-  echo
-  echo 'Entering chroot...'
-  arch-chroot /mnt "/root/$MyName" setupchroot
-  rm "/mnt/root/$MyName"
+    echo
+    echo 'Copying script to chroot...'
+    PathToMe="${0}"
+    MyName="${0##*/}"
+    cp "$PathToMe" "/mnt/root/$MyName"
+    chmod +x "/mnt/root/$MyName"
+    echo
+    echo "Done!"
+    echo
+    echo 'Entering chroot...'
+    arch-chroot /mnt "/root/$MyName" setupchroot
+    rm "/mnt/root/$MyName"
 }
 
 set_timezone() {
-  echo
-  echo 'Setting timezone...'
-  ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
-  hwclock --systohc --utc
-  echo
-  echo 'Done!'
+    echo
+    echo 'Setting timezone...'
+    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    hwclock --systohc --utc
+    echo
+    echo 'Done!'
 }
 
 set_locale() {
-  echo
-  echo 'Setting locale...'
-  sed -i "s/^#$LOCALE/$LOCALE/" /etc/locale.gen
-  locale-gen
-  echo LANG=$LOCALE > /etc/locale.conf
-  export LANG=$LOCALE
-  echo
-  echo "Done!"
+    echo
+    echo 'Setting locale...'
+    sed -i "s/^#$LOCALE/$LOCALE/" /etc/locale.gen
+    locale-gen
+    echo LANG=$LOCALE > /etc/locale.conf
+    export LANG=$LOCALE
+    echo
+    echo "Done!"
 }
 
 set_keymap() {
-  echo
-  echo 'Setting keymap...'
-  echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
-  echo
-  echo "Done!"
+    echo
+    echo 'Setting keymap...'
+    echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
+    echo
+    echo "Done!"
 }
 
 set_hostname() {
-  echo
-  echo 'Setting hostname...'
-  echo "$HOSTNAME" > /etc/hostname
-  echo
-  echo "Done!"
+    echo
+    echo 'Setting hostname...'
+    echo "$HOSTNAME" > /etc/hostname
+    echo
+    echo -e "#
+# /etc/hosts: static lookup table for host names
+#
+
+#<ip-address>   <hostname.domain.org>   <hostname>
+127.0.0.1       localhost
+::1             localhost
+127.0.0.1       $HOSTNAME.localdomain   $HOSTNAME
+
+# End of file" > /etc/hosts
+    echo "Done!"
+}
+
+set_trim() {
+    echo
+    echo 'Setting TRIM service...'
+    systemctl enable fstrim.timer
+    echo
+    echo "Done!"
 }
 
 setup_pacman() {
-  echo
-  echo 'Initializing pacman...'
-  pacman-key --init
-  pacman-key --populate archlinux
-  sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-  echo
-  echo "Done!"
+    echo
+    echo 'Initializing pacman...'
+    pacman-key --init
+    pacman-key --populate archlinux
+    sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
+    echo
+    echo "Done!"
 }
 
 setup_user() {
-  echo
-  echo 'Adding sudoers user...'
-  useradd -m -G wheel,storage,power -s /bin/bash $USER
-  sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /etc/sudoers
-  echo -e "\nDefaults rootpw" >> /etc/sudoers
-  echo
-  echo "Add the root password"
-  passwd
-  echo
-  echo "Add the user password"
-  passwd $USER
-  echo
-  echo "Done!"
+    echo
+    echo 'Adding sudoers user...'
+    useradd -m -G wheel,storage,power -s /bin/bash $USER
+    sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /etc/sudoers
+    echo -e "\nDefaults rootpw" >> /etc/sudoers
+    echo
+    echo "Add the root password"
+    passwd
+    echo
+    echo "Add the user password"
+    passwd $USER
+    echo
+    echo "Done!"
 }
 
 install_network() {
-  echo
-  echo 'Installing network...'
-  pacman -Sy --noconfirm networkmanager
-  if [[ $DESKTOP == $PLASMA ]]; then
-    pacman -Sy --noconfirm plasma-nm
-  fi
-  systemctl enable NetworkManager.service
-  echo
-  echo "Done!"
+    echo
+    echo 'Installing network...'
+    pacman -Sy --noconfirm networkmanager
+    if [[ $DESKTOP == $PLASMA ]]; then
+        pacman -Sy --noconfirm plasma-nm
+    fi
+    systemctl enable NetworkManager.service
+    echo
+    echo "Done!"
 }
 
 install_graphics() {
-  echo
-  echo 'Installing graphics...'
-  pacman -Sy --noconfirm $GRAPHICS
-  if [[ $GRAPHICS == $VIRTUALBOX ]]; then
-    systemctl enable vboxservice.service
-  fi
-  echo
-  echo "Done!"
+    echo
+    echo 'Installing graphics...'
+    pacman -Sy --noconfirm $GRAPHICS
+    if [[ $GRAPHICS == $VIRTUALBOX ]]; then
+        systemctl enable vboxservice.service
+    fi
+    echo
+    echo "Done!"
 }
 
 install_xorg() {
@@ -277,16 +294,16 @@ install_xorg() {
 }
 
 install_desktop() {
-  echo
-  echo "Installing Desktop Environment..."
-  pacman -Sy --noconfirm $DESKTOP
-  if [[ $DESKTOP == $PLASMA ]]; then
-    pacman -Sy --noconfirm sddm
-    echo -e '[Theme]\nCurrent=breeze' > /etc/sddm.conf
-    systemctl enable sddm.service
-  fi
-  echo
-  echo "Done!"
+    echo
+    echo "Installing Desktop Environment..."
+    pacman -Sy --noconfirm $DESKTOP
+    if [[ $DESKTOP == $PLASMA ]]; then
+        pacman -Sy --noconfirm sddm
+        echo -e '[Theme]\nCurrent=breeze' > /etc/sddm.conf
+        systemctl enable sddm.service
+    fi
+    echo
+    echo "Done!"
 }
 
 install_audio() {
@@ -309,67 +326,68 @@ install_essentials() {
 }
 
 install_boot() {
-  echo
-  echo 'Installing refind...'
-  get_uuid="$(blkid -s UUID -o value "$ROOT_PART")"
-  pacman -Sy --noconfirm refind-efi
-  refind-install
-  if [[ $GRAPHICS == $VIRTUALBOX ]]; then
-    echo '\EFI\refind\refind_x64.efi' > /boot/efi/startup.nsh
-  fi
-  cat << EOF > /boot/refind_linux.conf
+    echo
+    echo 'Installing refind...'
+    get_uuid="$(blkid -s UUID -o value "$ROOT_PART")"
+    pacman -Sy --noconfirm refind-efi
+    refind-install
+    if [[ $GRAPHICS == $VIRTUALBOX ]]; then
+        echo '\EFI\refind\refind_x64.efi' > /boot/efi/startup.nsh
+    fi
+    cat << EOF > /boot/refind_linux.conf
 "Boot using default options"     "root=UUID=${get_uuid} rw add_efi_memmap"
 "Boot using fallback initramfs"  "root=UUID=${get_uuid} rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
 "Boot to terminal"               "root=UUID=${get_uuid} rw add_efi_memmap systemd.unit=multi-user.target"
 EOF
-  echo
-  echo "Done!"
+    echo
+    echo "Done!"
 }
 
 _reboot() {
-  printf "\n
+    printf "\n
 ======================
  Install finished...
 ======================\n"
-  read -p "Reboot? (y/n):  " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      printf 'Done!\n'
-      exit 0
+    read -p "Reboot? (y/n):  " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        printf 'Done!\n'
+        exit 0
     else
-      echo "Unmounting /mnt"
-      umount -R /mnt
-      echo "Restarting in 3 seconds..."
-      sleep 3
-      reboot
-  fi
+        echo "Unmounting /mnt"
+        umount -R /mnt
+        echo "Restarting in 3 seconds..."
+        sleep 3
+        reboot
+    fi
 }
 
 # Is root running.
 if [ "$(id -u)" -ne 0 ]; then
-  echo -e "\n\nRun as root!\n\n"
-  exit -1
+    echo -e "\n\nRun as root!\n\n"
+    exit 1
 fi
 
 # Check if chroot before startup.
 if [[ $1 == setupchroot ]]; then
-  echo "Starting chroot setup..."
-  set_timezone
-  set_locale
-  set_keymap
-  set_hostname
-  setup_pacman
-  setup_user
-  install_network
-  install_graphics
-  install_xorg
-  install_desktop
-  install_audio
-  install_essentials
-  install_boot
-  exit 0
+    echo "Starting chroot setup..."
+    set_timezone
+    set_locale
+    set_keymap
+    set_hostname
+    set_trim
+    setup_pacman
+    setup_user
+    install_network
+    install_graphics
+    install_xorg
+    install_desktop
+    install_audio
+    install_essentials
+    install_boot
+    exit 0
 else
-  startup
+    startup
 fi
 
 _reboot
