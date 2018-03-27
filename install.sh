@@ -1,358 +1,182 @@
 #!/bin/bash
+set -e
 
-###################
-## Configuration ##
-###################
+## CONFIGURATIONS ##
 
-VERSION="BETA1"
-#
-# title="Install Wizard"
-# backtitle="Archlinux Installer $VERSION"
-
-# Distribution
-DISTRO='Archlinux'
-
-# Install disk location.
-DISK='/dev/sda'
-BOOT_PART=${DISK}1
-ROOT_PART=${DISK}2
-    
 # Partitioning
-# Boot 100M or more
-BOOT_PART_SIZE=500M
-# Root 20G or 100%
+DEVICE='/dev/sda'
+EFI_PART=${DEVICE}1
+ROOT_PART=${DEVICE}2
+EFI_PART_SIZE=513MiB # actual size is 1MiB less
 ROOT_PART_SIZE=100%
+WIPE_DISK=false # true: DEVICE (or the one containg ROOT_PART) will be zapped and wiped
+WIPE_EFI=false # true: EFI_PART will be wiped. false: Will not be wiped, errors out if not proper esp
 
-# Encrypt disk but leave boot parition (Yes/No).
-ENCRYPTION='No'
-
-# Download mirror location, use your country code.
+# Config
 MIRROR='GB'
-
-# Keymap.
-KEYMAP='us'
-
-# Locale.
-LOCALE='en_GB.UTF-8'
-
-# Hostname.
-HOSTNAME='sporif-pc'
-
-# Timezone.
 TIMEZONE='Europe/London'
+LOCALE='en_GB.UTF-8'
+KEYMAP='us'
+HOSTNAME='sporif-pc'
+USER_NAME='sporif'
+ROOT_PASSWORD='archlinux'
+USER_PASSWORD='archlinux'
 
-# Main user to create (sudo permissions).
-USER='sporif'
-
-# Graphics drivers
-INTEL="i915"
-NVIDIA="nouveau"
-AMD="radeon"
+# Grpahics Drivers
+NVIDIA='linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings'
 VIRTUALBOX='virtualbox-guest-utils virtualbox-guest-modules-arch'
 GRAPHICS=$VIRTUALBOX
 
-# Xorg packages
+# Xorg
 #XORG='xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm'
 XORG='xorg'
 
-# Desktop Enviroment
-PLASMA='plasma-desktop'
+# Desktop Env
+PLASMA='plasma-desktop kde-gtk-config breeze-gtk kscreen kinfocenter'
 DESKTOP=$PLASMA
 
-# Audio packages
-AUDIO='pulseaudio pulseaudio-alsa'
-
-# Essential Applications
+# Essential Packages
 ESSENTIALS='konsole dolphin kate firefox'
 
+## START OF SCRIPT ##
+
 startup() {
-    printf "\nChecking your Configuration... \n
+    printf "\nYour Configuration\n
 ==============================================
- Script Version        | $VERSION
-----------------------------------------------
- Distribution          | %s
- Disk                  | %s
- Boot partition size   | %s
- Root partition size   | %s
- Encryption            | %s
+ Device                | %s
+ EFI                   | %s - %s
+ ROOT                  | %s - %s
  Mirrorlist            | %s
+ Timezone              | %s
+ Locale                | %s
  Keymap                | %s
  Hostname              | %s
- Timezone              | %s
- User                  | %s
+ Username              | %s
  Graphics              | %s
  Xorg                  | %s
  Desktop               | %s
  Audio                 | %s
  Essentials            | %s
 ==============================================
-  \n" "$DISTRO" "$DISK" "$BOOT_PART_SIZE" "$ROOT_PART_SIZE" "$ENCRYPTION" "$MIRROR" "$KEYMAP" \
-  "$HOSTNAME" "$TIMEZONE" "$USER" "$GRAPHICS" "$XORG" "$DESKTOP" "$AUDIO" "$ESSENTIALS"
+  \n" "$DEVICE" "$EFI_PART" "$EFI_PART_SIZE" "$ROOT_PART" "$ROOT_PART_SIZE" \
+    "$MIRROR" "$TIMEZONE" "LOCALE" "$KEYMAP" "$HOSTNAME" "$USER_NAME" \
+    "$GRAPHICS" "$XORG" "$DESKTOP" "$AUDIO" "$ESSENTIALS"
     lsblk
     echo
     read -p "Is this correct? (y/n):  " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        printf 'Please fix your Configuration at the start of the script.\n'
+        printf 'Please change the settings at the start of the script.\n'
         exit 1
     else
         echo
-        setup
+        install
     fi
 }
 
-setup() {
-    setup_systemclock
-    parition
-    format_partition
-    mount_partition
-    update_mirrorlist
-    install_base
-    _chroot
-}
-
-setup_systemclock() {
-    echo
-    echo "Updating system clock..."
-    timedatectl set-ntp true
-    echo
-    echo "Done!"
-}
-
-parition() {
-    echo "Partitioning $DISK for EFI..."
-    parted -s "$DISK" \
+install() {
+    # Check Network
+    ping -c 5 www.archlinux.org
+    if [ $? -ne 0 ]; then
+        echo "Network ping check failed. Cannot continue."
+        exit
+    fi
+    
+    # Make partitions
+    sgdisk --zap-all $DEVICE
+    wipefs -a $DEVICE
+    parted -s $DEVICE \
     mklabel gpt \
-    mkpart ESP fat32 1M $BOOT_PART_SIZE \
-    set 1 boot on \
-    mkpart primary ext4 $BOOT_PART_SIZE $ROOT_PART_SIZE \
-    echo "Done!"
-}
-
-format_partition() {
-    echo
-    echo "Formatting partitions..."
-    echo
-    mkfs.vfat -F32 $BOOT_PART
+    mkpart ESP fat32 1MiB $EFI_PART_SIZE \
+    set ${EFI_PART:~0} boot on \
+    mkpart primary ext4 $EFI_PART_SIZE $ROOT_PART_SIZE
+    
+    # Format partitions
+    mkfs.vfat -F32 $EFI_PART
     mkfs.ext4 $ROOT_PART
-    echo 'Done!'
-}
-
-mount_partition() {
-    echo
-    echo "Mounting partitions..."
-    echo
+    
+    # Mount partitions
     mount $ROOT_PART /mnt
     mkdir -p /mnt/boot/efi
-    mount $BOOT_PART /mnt/boot/efi
-    echo
-    echo "Partition mount successful!"
-}
-
-update_mirrorlist() {
-    echo
-    echo 'Updating mirrorlist...'
+    mount $EFI_PART /mnt/boot/efi
+    
+    # Mirrorlist
     rm /etc/pacman.d/mirrorlist
     wget https://www.archlinux.org/mirrorlist/?country=$MIRROR -O /etc/pacman.d/mirrorlist
     sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
-    echo 'Done!'
-}
-
-install_base() {
-    echo
-    echo 'Installing base...'
+    
+    # Base system
     pacstrap /mnt base base-devel
     genfstab -U /mnt >> /mnt/etc/fstab
-    echo
-    echo "Done!"
-}
-
-_chroot() {
-    echo
-    echo 'Copying script to chroot...'
-    PathToMe="${0}"
-    MyName="${0##*/}"
-    cp "$PathToMe" "/mnt/root/$MyName"
-    chmod +x "/mnt/root/$MyName"
-    echo
-    echo "Done!"
-    echo
-    echo 'Entering chroot...'
-    arch-chroot /mnt "/root/$MyName" setupchroot
-    rm "/mnt/root/$MyName"
-}
-
-set_timezone() {
-    echo
-    echo 'Setting timezone...'
-    ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
-    hwclock --systohc --utc
-    echo
-    echo 'Done!'
-}
-
-set_locale() {
-    echo
-    echo 'Setting locale...'
-    sed -i "s/^#$LOCALE/$LOCALE/" /etc/locale.gen
-    locale-gen
-    echo LANG=$LOCALE > /etc/locale.conf
-    export LANG=$LOCALE
-    echo
-    echo "Done!"
-}
-
-set_keymap() {
-    echo
-    echo 'Setting keymap...'
-    echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
-    echo
-    echo "Done!"
-}
-
-set_hostname() {
-    echo
-    echo 'Setting hostname...'
-    echo "$HOSTNAME" > /etc/hostname
-    echo
-    echo -e "#
-# /etc/hosts: static lookup table for host names
-#
-
-#<ip-address>   <hostname.domain.org>   <hostname>
-127.0.0.1       localhost
-::1             localhost
-127.0.0.1       $HOSTNAME.localdomain   $HOSTNAME
-
-# End of file" > /etc/hosts
-    echo "Done!"
-}
-
-set_trim() {
-    echo
-    echo 'Setting TRIM service...'
-    systemctl enable fstrim.timer
-    echo
-    echo "Done!"
-}
-
-setup_pacman() {
-    echo
-    echo 'Initializing pacman...'
-    pacman-key --init
-    pacman-key --populate archlinux
-    sed -i "/\[multilib\]/,/Include/"'s/^#//' /etc/pacman.conf
-    echo
-    echo "Done!"
-}
-
-setup_user() {
-    echo
-    echo 'Adding sudoers user...'
-    useradd -m -G wheel,storage,power -s /bin/bash $USER
-    sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /etc/sudoers
-    echo -e "\nDefaults rootpw" >> /etc/sudoers
-    echo
-    echo "Add the root password"
-    passwd
-    echo
-    echo "Add the user password"
-    passwd $USER
-    echo
-    echo "Done!"
-}
-
-install_graphics() {
-    echo
-    echo 'Installing graphics...'
-    pacman -Sy --noconfirm $GRAPHICS
+    
+    # Config
+    arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+    arch-chroot /mnt hwclock --systohc --utc
+    sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+    arch-chroot /mnt locale-gen
+    echo LANG=$LOCALE > /mnt/etc/locale.conf
+    echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
+    echo "$HOSTNAME" > /mnt/etc/hostname
+    if [ -n "$(hdparm -I $DEVICE | grep TRIM)" ]; then 
+        arch-chroot /mnt systemctl enable fstrim.timer
+    fi
+    
+    # Pacman
+    arch-chroot /mnt pacman-key --init
+    arch-chroot /mnt pacman-key --populate archlinux
+    sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+    arch-chroot /mnt pacman -Sy 
+    
+    # User
+    arch-chroot /mnt useradd -m -G wheel -s /bin/bash $USER_NAME
+    sed -i "s/^# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" /mnt/etc/sudoers
+    echo -e "\nDefaults rootpw" >> /mnt/etc/sudoers
+    printf "$ROOT_PASSWORD\n$ROOT_PASSWORD" | arch-chroot /mnt passwd
+    printf "$USER_PASSWORD\n$USER_PASSWORD" | arch-chroot /mnt passwd $USER_NAME
+    
+    # Graphics Drivers
+    arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
     if [[ $GRAPHICS == $VIRTUALBOX ]]; then
-        systemctl enable vboxservice
+        arch-chroot /mnt systemctl enable vboxservice
     fi
-    echo
-    echo "Done!"
-}
-
-install_xorg() {
-    echo
-    echo 'Installing xorg...'
-    pacman -Sy --noconfirm $XORG
-    echo
-    echo "Done!"
-}
-
-install_desktop() {
-    echo
-    echo "Installing Desktop Environment..."
-    pacman -Sy --noconfirm $DESKTOP
-    if [[ $DESKTOP == $PLASMA ]]; then
-        pacman -Sy --noconfirm sddm
-        echo -e '[Theme]\nCurrent=breeze' > /etc/sddm.conf
-        systemctl enable sddm
-    fi
-    echo
-    echo "Done!"
-}
-
-install_audio() {
-    echo
-    echo 'Installing audio...'
-    pacman -Sy --noconfirm $AUDIO
-    if [[ $DESKTOP == $PLASMA ]]; then
-        pacman -Sy --noconfirm plasma-pa
-    fi
-    echo
-    echo "Done!"
-}
-
-install_network() {
-    echo
-    echo 'Installing network...'
-    pacman -Sy --noconfirm networkmanager
-    if [[ $DESKTOP == $PLASMA ]]; then
-        pacman -Sy --noconfirm plasma-nm
-    fi
-    systemctl enable NetworkManager
-    echo
-    echo "Done!"
-}
-
-install_bluetooth() {
-    echo
-    echo 'Installing bluetooth...'
-    pacman -Sy --noconfirm bluez bluez-utils
-    if [[ $DESKTOP == $PLASMA ]]; then
-        pacman -Sy --noconfirm bluedevil
-    fi
-    systemctl enable bluetooth
-    echo
-    echo "Done!"
-}
-
-install_essentials() {
-    echo 
-    echo "Installing essential applications..."
-    pacman -Sy --noconfirm $ESSENTIALS
-    echo
-    echo "Done!"
-}
-
-install_boot() {
-    echo
-    echo 'Installing refind...'
-    get_uuid="$(blkid -s UUID -o value "$ROOT_PART")"
-    pacman -Sy --noconfirm refind-efi
-    refind-install
+    
+    # Xorg
+    arch-chroot /mnt pacman -S --noconfirm $XORG
+    
+    # Desktop Env
+    arch-chroot /mnt pacman -S --noconfirm $DESKTOP
+    [[ $DESKTOP == $PLASMA ]] && arch-chroot /mnt pacman -S --noconfirm sddm sddm-kcm & \
+    arch-chroot /mnt systemctl enable sddm
+    
+    # Audio
+    arch-chroot /mnt pacman -S --noconfirm pulseaudio pulseaudio-alsa pulseaudio-bluetooth
+    [[ $DESKTOP == $PLASMA ]] && arch-chroot /mnt pacman -S --noconfirm plasma-pa kmix
+    
+    # Network
+    arch-chroot /mnt pacman -S --noconfirm networkmanager
+    arch-chroot /mnt systemctl enable NetworkManager
+    [[ $DESKTOP == $PLASMA ]] && arch-chroot /mnt pacman -S --noconfirm plasma-nm
+    
+    # Bluetooth
+    arch-chroot /mnt pacman -S --noconfirm bluez bluez-utils
+    arch-chroot /mnt systemctl enable bluetooth
+    [[ $DESKTOP == $PLASMA ]] && arch-chroot /mnt pacman -S --noconfirm bluedevil
+    
+    # Essential Packages
+    arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
+    
+    # Boot manager
+    ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
+    arch-chroot /mnt pacman -S --noconfirm refind-efi
+    [[ ! -d "/mnt/boot/efi/EFI/refind" ]] arch-chroot /mnt refind-install
     if [[ $GRAPHICS == $VIRTUALBOX ]]; then
-        echo '\EFI\refind\refind_x64.efi' > /boot/efi/startup.nsh
+        echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
     fi
-    cat << EOF > /boot/refind_linux.conf
-"Boot using default options"     "root=UUID=${get_uuid} rw add_efi_memmap"
-"Boot using fallback initramfs"  "root=UUID=${get_uuid} rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
-"Boot to terminal"               "root=UUID=${get_uuid} rw add_efi_memmap systemd.unit=multi-user.target"
+    cat << EOF > /mnt/boot/refind_linux.conf
+"Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap"
+"Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
+"Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap systemd.unit=multi-user.target"
 EOF
-    echo
-    echo "Done!"
 }
 
 _reboot() {
@@ -366,9 +190,9 @@ _reboot() {
         printf 'Done!\n'
         exit 0
     else
-        echo "Unmounting /mnt"
+        echo 'Unmounting /mnt'
         umount -R /mnt
-        echo "Restarting in 3 seconds..."
+        echo 'Restarting in 3 seconds...'
         sleep 3
         reboot
     fi
@@ -376,31 +200,9 @@ _reboot() {
 
 # Is root running.
 if [ "$(id -u)" -ne 0 ]; then
-    echo -e "\n\nRun as root!\n\n"
+    echo -e "\n\nYou must run this as root!\n\n"
     exit 1
 fi
 
-# Check if chroot before startup.
-if [[ $1 == setupchroot ]]; then
-    echo "Starting chroot setup..."
-    set_timezone
-    set_locale
-    set_keymap
-    set_hostname
-    set_trim
-    setup_pacman
-    setup_user
-    install_graphics
-    install_xorg
-    install_desktop
-    install_audio
-    install_network
-    install_bluetooth
-    install_essentials
-    install_boot
-    exit 0
-else
-    startup
-fi
-
+startup
 _reboot
