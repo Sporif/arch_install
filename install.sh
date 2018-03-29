@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Usage:
+# curl -sL https://git.io/vxwvx | bash
+
 ###################
 ## Configuration ##
 ###################
