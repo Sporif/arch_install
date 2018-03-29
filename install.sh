@@ -66,6 +66,9 @@ ESSENTIALS='konsole dolphin kate firefox'
 ## Script ##
 ############
 
+exec 1> >(tee "stdout.log")
+exec 2> >(tee "stderr.log")
+
 startup() {
     printf "\nYour Configuration\n
 ==============================================
