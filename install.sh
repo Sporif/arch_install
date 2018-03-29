@@ -1,7 +1,5 @@
 #!/bin/bash
-# set -x # Debugging
-set -uo pipefail
-trap 's=$?; echo "$0: Error on line "$LINENO": $BASH_COMMAND"; exit $s' ERR
+set -euo pipefail
 
 ###################
 ## Configuration ##
@@ -107,6 +105,7 @@ startup() {
 
 install() {
     # Check Network
+    echo -e 'Testing Network: \n'
     if ! ping -c 3 www.archlinux.org; then
         echo 'Network ping check failed. Cannot continue.'
         exit 1
@@ -119,9 +118,11 @@ install() {
     fi
     
     # System clock
+    echo -e '\nSetting System clock: \n'
     timedatectl set-ntp true
     timedatectl set-timezone $TIMEZONE
     timedatectl status
+    echo
     
     # Make partitions
     EFI_DISK=${EFI_PART%?}
@@ -200,7 +201,7 @@ install() {
     
     # User
     arch-chroot /mnt useradd -m -G wheel -s /bin/bash $USER_NAME
-    echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /etc/sudoers.d/99_wheel 
+    echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /mnt/etc/sudoers.d/99_wheel 
     echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root /mnt
     echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
     
