@@ -87,12 +87,11 @@ startup() {
  Graphics              | %s
  Xorg                  | %s
  Desktop               | %s
- Audio                 | %s
  Essentials            | %s
 ==============================================
   \n" "$EFI_PART" "$EFI_PART_SIZE" "$ROOT_PART" "$ROOT_PART_SIZE" \
     "$MIRROR" "$TIMEZONE" "$LOCALE" "$KEYMAP" "$HOSTNAME" "$TRIM" "$P_MULTILIB" \
-    "$P_COLOR" "$USER_NAME" "$GRAPHICS" "$XORG" "$DESKTOP" "$AUDIO" "$ESSENTIALS"
+    "$P_COLOR" "$USER_NAME" "$GRAPHICS" "$XORG" "$DESKTOP" "$ESSENTIALS"
     lsblk
     echo
     read -p "Is this correct? (y/n):  " -n 1 -r
