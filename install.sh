@@ -112,8 +112,8 @@ printf "\nYour Configuration\n
  Desktop               | %s
  Essentials            | %s
 ==============================================
-  \n" "$EFI_PART" "$ROOT_PART" "WIPE_EFI_DISK" "WIPE_ROOT_DISK" \
-"WIPE_EFI_PART"  "WIPE_ROOT_PART" "$EFI_PART_SIZE" "$ROOT_PART_SIZE" \
+  \n" "$EFI_PART" "$ROOT_PART" "$WIPE_EFI_DISK" "$WIPE_ROOT_DISK" \
+"$WIPE_EFI_PART"  "$WIPE_ROOT_PART" "$EFI_PART_SIZE" "$ROOT_PART_SIZE" \
 "$MIRROR" "$TIMEZONE" "$LOCALE" "$KEYMAP" "$HOSTNAME" "$TRIM" "$P_MULTILIB" \
 "$P_COLOR" "$USER_NAME" "$GRAPHICS" "$XORG" "$DESKTOP" "$ESSENTIALS"
 lsblk
