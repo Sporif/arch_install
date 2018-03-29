@@ -72,7 +72,13 @@ ESSENTIALS='konsole dolphin kate firefox'
 exec 1> >(tee "stdout.log")
 exec 2> >(tee "stderr.log")
 
-startup() {
+# Is root running.
+if [ "$(id -u)" -ne 0 ]; then
+    echo -e "\n\nYou must run this as root!\n\n"
+    exit 1
+fi
+
+#startup() {
     printf "\nYour Configuration\n
 ==============================================
  EFI                   | %s - %s
@@ -102,14 +108,11 @@ startup() {
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         printf 'Please change the settings at the start of the script.\n'
-        exit
-    else
-        echo
-        install
+        exit 1
     fi
-}
+#}
 
-install() {
+#install() {
     # Check Network
     echo -e 'Testing Network: \n'
     if ! ping -c 3 www.archlinux.org; then
@@ -254,9 +257,9 @@ install() {
 "Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
 "Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap systemd.unit=multi-user.target"
 EOF
-}
+#}
 
-_reboot() {
+#_reboot() {
     printf "\n
 ======================
  Install finished...
@@ -265,7 +268,6 @@ _reboot() {
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         printf 'Done!\n'
-        exit
     else
         echo 'Unmounting /mnt'
         umount -R /mnt
@@ -273,13 +275,7 @@ _reboot() {
         sleep 3
         reboot
     fi
-}
+#}
 
-# Is root running.
-if [ "$(id -u)" -ne 0 ]; then
-    echo -e "\n\nYou must run this as root!\n\n"
-    exit 1
-fi
-
-startup
-_reboot
+#startup
+#_reboot
