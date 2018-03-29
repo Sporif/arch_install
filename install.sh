@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Usage:
 # curl -sL https://git.io/vxwvx > install.sh
-# Edit Configuration, (nano install.sh)
+# Edit script as needed, (nano install.sh)
 # chmod +x install.sh
 # ./install.sh
 
@@ -14,7 +14,7 @@ set -euo pipefail
 
 # Partitioning
 # If these partitions do not exist, either make them or set WIPE_EFI_DISK and/or WIPE_ROOT_DISK to true
-# It is crucial that the correct partitions specified
+# It is crucial that the correct partitions are specified
 EFI_PART='/dev/sda1'
 ROOT_PART='/dev/sda2'
 
@@ -73,15 +73,17 @@ ESSENTIALS='konsole dolphin kate firefox'
 ## Script ##
 ############
 
+# Logging
 exec 1> >(tee "stdout.log")
 exec 2> >(tee "stderr.log")
 
-# Is root running.
+# Are we running as root
 if [ "$(id -u)" -ne 0 ]; then
     echo -e "\n\nYou must run this as root!\n\n"
     exit 1
 fi
 
+# Show user config
 printf "\nYour Configuration\n
 ==============================================
  EFI                   | %s - %s
@@ -159,6 +161,7 @@ if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
     set ${EFI_PART:~0} boot on
 fi
+
 if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     sgdisk --zap-all $ROOT_DISK
     wipefs -a $ROOT_DISK
@@ -170,11 +173,12 @@ if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
 fi
 
 # Format partitions
-if [[ $WIPE_EFI_PART == 'true' ]]; then
+if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then
     wipefs $EFI_PART
     mkfs.vfat -F32 $EFI_PART
 fi
-if [[ $WIPE_ROOT_PART == 'true' ]]; then 
+
+if [[ $WIPE_ROOT_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then 
     wipefs $ROOT_PART
     mkfs.ext4 $ROOT_PART
 fi
