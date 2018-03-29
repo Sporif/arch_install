@@ -1,8 +1,12 @@
 #!/bin/bash
+# set -x # For Debugging
 set -euo pipefail
 
 # Usage:
-# curl -sL https://git.io/vxwvx | bash
+# curl -sL https://git.io/vxwvx > install.sh
+# Edit Configuration, (nano install.sh)
+# chmod +x install.sh
+# ./install.sh
 
 ###################
 ## Configuration ##
@@ -37,7 +41,7 @@ MIRROR='GB'
 TIMEZONE='Europe/London'
 LOCALE='en_GB.UTF-8'
 KEYMAP='us'
-HOSTNAME='sporif-pc'
+HOSTNAME='arch-pc'
 TRIM='true'
 
 # Pacman 
@@ -45,7 +49,7 @@ P_MULTILIB='true'
 P_COLOR='false'
 
 # User
-USER_NAME='sporif'
+USER_NAME='arch'
 ROOT_PASSWORD='archlinux'
 USER_PASSWORD='archlinux'
 
@@ -78,8 +82,7 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-#startup() {
-    printf "\nYour Configuration\n
+printf "\nYour Configuration\n
 ==============================================
  EFI                   | %s - %s
  ROOT                  | %s - %s
@@ -102,180 +105,172 @@ fi
   \n" "$EFI_PART" "$EFI_PART_SIZE" "$ROOT_PART" "$ROOT_PART_SIZE" \
     "$MIRROR" "$TIMEZONE" "$LOCALE" "$KEYMAP" "$HOSTNAME" "$TRIM" "$P_MULTILIB" \
     "$P_COLOR" "$USER_NAME" "$GRAPHICS" "$XORG" "$DESKTOP" "$ESSENTIALS"
-    lsblk
-    echo
-    read -p "Is this correct? (y/n):  " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        printf 'Please change the settings at the start of the script.\n'
-        exit 1
-    fi
-#}
+lsblk
+echo
+read -p "Is this correct? (y/n):  " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    printf 'Please change the settings at the start of the script.\n'
+    exit 1
+fi
 
-#install() {
-    # Check Network
-    echo -e 'Testing Network: \n'
-    if ! ping -c 3 www.archlinux.org; then
-        echo 'Network ping check failed. Cannot continue.'
-        exit 1
-    fi
+# Check Network
+echo -e 'Testing Network: \n'
+if ! ping -c 3 www.archlinux.org; then
+    echo 'Network ping check failed. Cannot continue.'
+    exit 1
+fi
+
+# Check UEFI
+if [[ ! -d /sys/firmware/efi ]]; then
+    echo 'Not booted in UEFI mode. Cannot continue.'
+    exit 1
+fi
+
+# System clock
+echo -e '\nSetting System clock: \n'
+timedatectl set-ntp true
+timedatectl set-timezone $TIMEZONE
+timedatectl status
+echo
+
+# Make partitions
+EFI_DISK=${EFI_PART%?}
+ROOT_DISK=${ROOT_PART%?}
+
+if [[ $EFI_DISK == "$ROOT_DISK" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
+    sgdisk --zap-all $EFI_DISK
+    wipefs -a $EFI_DISK
+    parted -s $EFI_DISK \
+    mklabel gpt \
+    mkpart ESP fat32 1MiB $EFI_PART_SIZE \
+    set ${EFI_PART:~0} boot on \
+    mkpart primary ext4 $EFI_PART_SIZE $ROOT_PART_SIZE
+    SAME_DEVICE='true'
+fi
+
+if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
+    sgdisk --zap-all $EFI_DISK
+    wipefs -a $EFI_DISK
+    EFI_PART=${EFI_DISK}1
     
-    # Check UEFI
-    if [[ ! -d /sys/firmware/efi ]]; then
-        echo 'Not booted in UEFI mode. Cannot continue.'
-        exit 1
-    fi
+    parted -s $EFI_DISK \
+    mklabel gpt \
+    mkpart ESP fat32 1MiB $EFI_PART_SIZE \
+    set ${EFI_PART:~0} boot on
+fi
+if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
+    sgdisk --zap-all $ROOT_DISK
+    wipefs -a $ROOT_DISK
+    ROOT_PART=${ROOT_DISK}1
     
-    # System clock
-    echo -e '\nSetting System clock: \n'
-    timedatectl set-ntp true
-    timedatectl set-timezone $TIMEZONE
-    timedatectl status
-    echo
-    
-    # Make partitions
-    EFI_DISK=${EFI_PART%?}
-    ROOT_DISK=${ROOT_PART%?}
-    
-    if [[ $EFI_DISK == "$ROOT_DISK" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
-        sgdisk --zap-all $EFI_DISK
-        wipefs -a $EFI_DISK
-        parted -s $EFI_DISK \
-        mklabel gpt \
-        mkpart ESP fat32 1MiB $EFI_PART_SIZE \
-        set ${EFI_PART:~0} boot on \
-        mkpart primary ext4 $EFI_PART_SIZE $ROOT_PART_SIZE
-        SAME_DEVICE='true'
-    fi
-    
-    if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
-        sgdisk --zap-all $EFI_DISK
-        wipefs -a $EFI_DISK
-        EFI_PART=${EFI_DISK}1
-        
-        parted -s $EFI_DISK \
-        mklabel gpt \
-        mkpart ESP fat32 1MiB $EFI_PART_SIZE \
-        set ${EFI_PART:~0} boot on
-    fi
-    if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
-        sgdisk --zap-all $ROOT_DISK
-        wipefs -a $ROOT_DISK
-        ROOT_PART=${ROOT_DISK}1
-        
-        parted -s $ROOT_DISK \
-        mklabel gpt \
-        mkpart primary ext4 1MiB $ROOT_PART_SIZE
-    fi
-    
-    # Format partitions
-    if [[ $WIPE_EFI_PART == 'true' ]]; then
-        wipefs $EFI_PART
-        mkfs.vfat -F32 $EFI_PART
-    fi
-    if [[ $WIPE_ROOT_PART == 'true' ]]; then 
-        wipefs $ROOT_PART
-        mkfs.ext4 $ROOT_PART
-    fi
-    
-    # Mount partitions
-    mount $ROOT_PART /mnt
-    mkdir -p /mnt/boot/efi
-    mount $EFI_PART /mnt/boot/efi
-    
-    # Mirrorlist
-    mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 
-    wget "https://www.archlinux.org/mirrorlist/?country=${MIRROR}&use_mirror_status=on" -O /etc/pacman.d/mirrorlist
-    sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
-    pacman -Syy
-    
-    # Base system
-    pacstrap /mnt base base-devel
-    genfstab -U /mnt >> /mnt/etc/fstab
-    
-    # Config
-    arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
-    arch-chroot /mnt hwclock --systohc --utc
-    sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
-    arch-chroot /mnt locale-gen
-    echo "LANG=$LOCALE" > /mnt/etc/locale.conf
-    echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
-    echo "$HOSTNAME" > /mnt/etc/hostname
-    [[ $TRIM == 'true' ]] && arch-chroot /mnt systemctl enable fstrim.timer
-    
-    # Pacman
-    [[ $P_MULTILIB == 'true' ]] && sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
-    [[ $P_COLOR == 'true' ]] && sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
-    arch-chroot /mnt pacman -Syu --noconfirm
-    
-    # User
-    arch-chroot /mnt useradd -m -G wheel -s /bin/bash $USER_NAME
-    echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /mnt/etc/sudoers.d/99_wheel 
-    echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root /mnt
-    echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
-    
-    # Graphics Drivers
-    arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
-    [[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
-    
-    # Xorg
-    arch-chroot /mnt pacman -S --noconfirm $XORG
-    
-    # Desktop Env
-    arch-chroot /mnt pacman -S --noconfirm $DESKTOP
-    if [[ $DESKTOP == "$PLASMA" ]]; then
-        arch-chroot /mnt pacman -S --noconfirm sddm sddm-kcm
-        arch-chroot /mnt systemctl enable sddm
-    fi
-    
-    # Audio
-    arch-chroot /mnt pacman -S --noconfirm pulseaudio pulseaudio-alsa pulseaudio-bluetooth
-    [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-pa
-    
-    # Network
-    arch-chroot /mnt pacman -S --noconfirm networkmanager
-    arch-chroot /mnt systemctl enable NetworkManager
-    [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-nm
-    
-    # Bluetooth
-    arch-chroot /mnt pacman -S --noconfirm bluez bluez-utils
-    arch-chroot /mnt systemctl enable bluetooth
-    [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm bluedevil
-    
-    # Essential Packages
-    arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
-    
-    # Boot manager/loader
-    ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
-    arch-chroot /mnt pacman -S --noconfirm refind-efi
-    [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
-    if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
-        echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
-    fi
-    cat << EOF > /mnt/boot/refind_linux.conf
+    parted -s $ROOT_DISK \
+    mklabel gpt \
+    mkpart primary ext4 1MiB $ROOT_PART_SIZE
+fi
+
+# Format partitions
+if [[ $WIPE_EFI_PART == 'true' ]]; then
+    wipefs $EFI_PART
+    mkfs.vfat -F32 $EFI_PART
+fi
+if [[ $WIPE_ROOT_PART == 'true' ]]; then 
+    wipefs $ROOT_PART
+    mkfs.ext4 $ROOT_PART
+fi
+
+# Mount partitions
+mount $ROOT_PART /mnt
+mkdir -p /mnt/boot/efi
+mount $EFI_PART /mnt/boot/efi
+
+# Mirrorlist
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 
+wget "https://www.archlinux.org/mirrorlist/?country=${MIRROR}&use_mirror_status=on" -O /etc/pacman.d/mirrorlist
+sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
+pacman -Syy
+
+# Base system
+pacstrap /mnt base base-devel
+genfstab -U /mnt >> /mnt/etc/fstab
+
+# Config
+arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+arch-chroot /mnt hwclock --systohc --utc
+sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+arch-chroot /mnt locale-gen
+echo "LANG=$LOCALE" > /mnt/etc/locale.conf
+echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
+echo "$HOSTNAME" > /mnt/etc/hostname
+[[ $TRIM == 'true' ]] && arch-chroot /mnt systemctl enable fstrim.timer
+
+# Pacman
+[[ $P_MULTILIB == 'true' ]] && sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+[[ $P_COLOR == 'true' ]] && sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
+arch-chroot /mnt pacman -Syu --noconfirm
+
+# User
+arch-chroot /mnt useradd -m -G wheel -s /bin/bash $USER_NAME
+echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /mnt/etc/sudoers.d/99_wheel 
+echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root /mnt
+echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
+
+# Graphics Drivers
+arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
+[[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
+
+# Xorg
+arch-chroot /mnt pacman -S --noconfirm $XORG
+
+# Desktop Env
+arch-chroot /mnt pacman -S --noconfirm $DESKTOP
+if [[ $DESKTOP == "$PLASMA" ]]; then
+    arch-chroot /mnt pacman -S --noconfirm sddm sddm-kcm
+    arch-chroot /mnt systemctl enable sddm
+fi
+
+# Audio
+arch-chroot /mnt pacman -S --noconfirm pulseaudio pulseaudio-alsa pulseaudio-bluetooth
+[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-pa
+
+# Network
+arch-chroot /mnt pacman -S --noconfirm networkmanager
+arch-chroot /mnt systemctl enable NetworkManager
+[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-nm
+
+# Bluetooth
+arch-chroot /mnt pacman -S --noconfirm bluez bluez-utils
+arch-chroot /mnt systemctl enable bluetooth
+[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm bluedevil
+
+# Essential Packages
+arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
+
+# Boot manager/loader
+ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
+arch-chroot /mnt pacman -S --noconfirm refind-efi
+[[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
+if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
+    echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
+fi
+cat << EOF > /mnt/boot/refind_linux.conf
 "Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap"
 "Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
 "Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap systemd.unit=multi-user.target"
 EOF
-#}
 
-#_reboot() {
-    printf "\n
+printf "\n
 ======================
  Install finished...
 ======================\n"
-    read -p "Reboot? (y/n):  " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        printf 'Done!\n'
-    else
-        echo 'Unmounting /mnt'
-        umount -R /mnt
-        echo 'Restarting in 3 seconds...'
-        sleep 3
-        reboot
-    fi
-#}
-
-#startup
-#_reboot
+read -p "Reboot? (y/n):  " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    printf 'Done!\n'
+else
+    echo 'Unmounting /mnt'
+    umount -R /mnt
+    echo 'Restarting in 3 seconds...'
+    sleep 3
+    reboot
+fi
