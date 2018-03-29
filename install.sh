@@ -99,7 +99,7 @@ startup() {
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         printf 'Please change the settings at the start of the script.\n'
-        return 1
+        exit
     else
         echo
         install
@@ -110,13 +110,13 @@ install() {
     # Check Network
     if ! ping -c 3 www.archlinux.org; then
         echo 'Network ping check failed. Cannot continue.'
-        return 1
+        exit 1
     fi
     
     # Check UEFI
     if [[ ! -d /sys/firmware/efi ]]; then
         echo 'Not booted in UEFI mode. Cannot continue.'
-        return 1
+        exit 1
     fi
     
     # System clock
@@ -272,7 +272,7 @@ _reboot() {
 # Is root running.
 if [ "$(id -u)" -ne 0 ]; then
     echo -e "\n\nYou must run this as root!\n\n"
-    return 1
+    exit 1
 fi
 
 startup
