@@ -174,12 +174,12 @@ if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
 fi
 
 # Format partitions
-if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then
+if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' || $SAME_DEVICE == 'true' ]]; then
     wipefs $EFI_PART
     mkfs.vfat -F32 $EFI_PART
 fi
 
-if [[ $WIPE_ROOT_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then 
+if [[ $WIPE_ROOT_PART == 'true' || $WIPE_EFI_DISK == 'true' || $SAME_DEVICE == 'true' ]]; then 
     wipefs $ROOT_PART
     mkfs.ext4 $ROOT_PART
 fi
@@ -193,7 +193,6 @@ mount $EFI_PART /mnt/boot/efi
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 
 wget "https://www.archlinux.org/mirrorlist/?country=${MIRROR}&use_mirror_status=on" -O /etc/pacman.d/mirrorlist
 sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
-pacman -Syy
 
 # Base system
 pacstrap /mnt base base-devel
