@@ -69,6 +69,18 @@ ESSENTIALS='konsole dolphin kate firefox'
 ## Script ##
 ############
 
+# Colors
+black=$(tput setaf 0)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+magenta=$(tput setaf 5)
+cyan=$(tput setaf 6)
+white=$(tput setaf 7)
+bold=$(tput bold)
+reset=$(tput sgr0)
+
 # Logging
 #exec 1> >(tee "stdout.log")
 #exec 2> >(tee "stderr.log")
