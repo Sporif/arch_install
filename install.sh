@@ -2,6 +2,7 @@
 # set -x # For Debugging
 set -euo pipefail
 
+# Arch Linux UEFI install script
 # Usage:
 # curl -sL https://git.io/vxwvx > install.sh
 # Edit script as needed, (nano install.sh)
