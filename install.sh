@@ -126,7 +126,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 # Check Network
-echo -e "Testing Network\n"
+echo -e "\nTesting Network\n"
 if ! ping -c 3 www.archlinux.org; then
     echo "Network ping check failed. Cannot continue."
     exit 1
@@ -140,7 +140,7 @@ if [[ ! -d /sys/firmware/efi ]]; then
 fi 
 
 # System clock
-echo -e "\nSetting System clock\n"
+echo -e "Setting System clock\n"
 timedatectl set-ntp true
 timedatectl set-timezone $TIMEZONE
 timedatectl status
@@ -155,7 +155,7 @@ if [[ $EFI_DISK == "$ROOT_DISK" ]]; then
 fi
 
 if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
-    echo -e "Wiping $EFI_DISK\n"
+    echo -e "\nWiping $EFI_DISK\n"
     sgdisk --zap-all $EFI_DISK
     wipefs -a $EFI_DISK
     EFI_PART=${EFI_DISK}1
@@ -211,7 +211,7 @@ fi
 echo -e "\nMounting $ROOT_PART as ROOT\n"
 mount $ROOT_PART /mnt
 mkdir -p /mnt/boot/efi
-echo -e "\Mounting $EFI_PART as EFI\n"
+echo -e "\nMounting $EFI_PART as EFI\n"
 mount $EFI_PART /mnt/boot/efi
 
 # Mirrorlist
