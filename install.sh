@@ -2,12 +2,14 @@
 # set -x # For Debugging
 set -euo pipefail
 
+######################################
 # Arch Linux UEFI install script
 # Usage:
-# curl -sL https://git.io/vxwvx > install.sh
-# Edit script as needed, (nano install.sh)
-# chmod +x install.sh
-# ./install.sh
+# Download: curl -sL https://git.io/vxwvx > install.sh
+# Edit script: nano install.sh
+# Make executable: chmod +x install.sh
+# Start it: ./install.sh
+######################################
 
 ###################
 ## Configuration ##
@@ -19,12 +21,12 @@ EFI_PART='/dev/sda1'
 ROOT_PART='/dev/sda2'
 
 # These need to be true if containing disk is not GPT or corresponding partitions don't exist
-# If EFI and ROOT are on same disk then either can be set to true (disk will only be wiped once)
+# If EFI and ROOT are on same disk then either can be set to true
 # If the containing disks are being wiped then partition numbers specified above will be ignored
 WIPE_EFI_DISK='false' # true: disk containing EFI_PART will be zapped and wiped
 WIPE_ROOT_DISK='false' # true: disk containing ROOT_PART will be zapped and wiped
 
-# These are irrelevant if containing disk is being wiped (since they would be wiped anyway)
+# These are irrelevant if containing disk is being wiped
 WIPE_EFI_PART='false' # true: EFI partition will be wiped. Shouldn't be true if you want to keep other OS in EFI
 WIPE_ROOT_PART='true' # true: ROOT partition will be wiped. Should normally be true
 
@@ -42,7 +44,7 @@ TRIM='true'
 
 # Pacman 
 P_MULTILIB='true'
-P_COLOR='false'
+P_COLOR='true'
 
 # User
 USER_NAME='arch'
@@ -55,7 +57,7 @@ VIRTUALBOX='virtualbox-guest-utils virtualbox-guest-modules-arch'
 GRAPHICS=$VIRTUALBOX
 
 # Xorg
-#XORG='xorg-server xorg-apps xorg-xinit xorg-twm xorg-xclock xterm'
+#XORG='xorg-server xorg-apps'
 XORG='xorg'
 
 # Desktop Env
