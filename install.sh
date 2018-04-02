@@ -5,10 +5,10 @@ set -euo pipefail
 ######################################
 # Arch Linux UEFI install script
 # Usage:
-# Download: curl -sL https://git.io/vxwvx > install.sh
-# Edit script: nano install.sh
-# Make executable: chmod +x install.sh
-# Start it: ./install.sh
+# Download:         curl -sL https://git.io/vxwvx > install.sh
+# Edit script:      nano install.sh
+# Make executable:  chmod +x install.sh
+# Start it:         ./install.sh
 ######################################
 
 ###################
