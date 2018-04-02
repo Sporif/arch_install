@@ -20,15 +20,15 @@ set -euo pipefail
 EFI_PART='/dev/sda1'
 ROOT_PART='/dev/sda2'
 
-# These need to be true if containing disk is not GPT or corresponding partitions don't exist
-# If EFI and ROOT are on same disk then either can be set to true
-# If the containing disks are being wiped then partition numbers specified above will be ignored
+# These need to be true if the containing disk(s) is not GPT or the partitions don't exist
+# If EFI and ROOT are on same disk then either can be set to true to wipe it
+# If the containing disk(s) are being wiped then partition numbers specified above will be ignored
 WIPE_EFI_DISK='false' # true: disk containing EFI_PART will be zapped and wiped
 WIPE_ROOT_DISK='false' # true: disk containing ROOT_PART will be zapped and wiped
 
 # These are irrelevant if containing disk is being wiped
-WIPE_EFI_PART='false' # true: EFI partition will be wiped. Shouldn't be true if you want to keep other OS in EFI
-WIPE_ROOT_PART='true' # true: ROOT partition will be wiped. Should normally be true
+WIPE_EFI_PART='false' # Shouldn't be true if you want to keep other OSs in EFI
+WIPE_ROOT_PART='true' # Should normally be true, unless there's data you want to keep, e.g. /home
 
 # These are only used if containing disk is being wiped 
 EFI_PART_SIZE=513MiB
@@ -162,6 +162,8 @@ if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == '
     wipefs -a $EFI_DISK
     EFI_PART=${EFI_DISK}1
     ROOT_PART=${ROOT_DISK}2
+    WIPE_EFI_DISK='true'
+    WIPE_ROOT_DISK='true'
     
     echo -e "\nPartitioning $EFI_DISK\n"
     parted -s $EFI_DISK \
@@ -197,13 +199,13 @@ if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
 fi
 
 # Format partitions
-if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' || $SAME_DEVICE == 'true' ]]; then
+if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then
     echo -e "\nFormatting $EFI_PART for EFI\n"
     wipefs $EFI_PART
     mkfs.vfat -F32 $EFI_PART
 fi
 
-if [[ $WIPE_ROOT_PART == 'true' || $WIPE_EFI_DISK == 'true' || $SAME_DEVICE == 'true' ]]; then 
+if [[ $WIPE_ROOT_PART == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then 
     echo -e "\nFormatting $ROOT_PART for ROOT\n"
     wipefs $ROOT_PART
     mkfs.ext4 $ROOT_PART
