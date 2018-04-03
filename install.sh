@@ -198,20 +198,20 @@ if [[ $WIPE_ROOT_PART == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
 fi
 
 # Mount partitions
-echo -e "\nMounting $ROOT_PART as ROOT\n"
+echo -e "Mounting $ROOT_PART as ROOT\n"
 mount $ROOT_PART /mnt
 mkdir -p /mnt/boot/efi
-echo -e "\nMounting $EFI_PART as EFI\n"
+echo -e "Mounting $EFI_PART as EFI\n"
 mount $EFI_PART /mnt/boot/efi
 
 # Mirrorlist
-echo -e "\nSetting Mirrorlist: $MIRROR\n"
+echo -e "Setting Mirrorlist: $MIRROR\n"
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 
 wget "https://www.archlinux.org/mirrorlist/?country=${MIRROR}&use_mirror_status=on" -O /etc/pacman.d/mirrorlist
 sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
 
 # Base system
-echo -e "\nInstalling base system\n"
+echo -e "Installing base system\n"
 pacstrap /mnt base base-devel
 genfstab -U /mnt >> /mnt/etc/fstab
 
@@ -239,10 +239,10 @@ echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /mnt/etc/sudoers.d/99_wheel
 echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root /mnt
 echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
 
-echo -e "\nStart of packages installation\n"
+echo -e "Start of packages installation\n"
 
 # Boot Manager/loader
-echo -e "\nInstalling Boot Manager: Refind\n"
+echo -e "Installing Boot Manager: Refind\n"
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 arch-chroot /mnt pacman -S --noconfirm refind-efi
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
@@ -256,7 +256,7 @@ cat << EOF > /mnt/boot/refind_linux.conf
 EOF
 
 # Graphics Drivers
-echo -e "Installing Graphics Drivers\n"
+echo -e "\nInstalling Graphics Drivers\n"
 arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
 
@@ -301,6 +301,7 @@ read -p "Reboot? (y/n):  " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
     read -p "Unmount /mnt? (y/n):  " -n 1 -r
+    echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         echo 'Unmounting /mnt'
         umount -R /mnt
