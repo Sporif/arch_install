@@ -83,8 +83,8 @@ bold=$(tput bold)
 reset=$(tput sgr0)
 
 # Logging
-exec 1> >(tee -i "stdout.log")
-exec 2> >(tee -i "stderr.log")
+#exec 1> >(tee -i "stdout.log")
+#exec 2> >(tee -i "stderr.log")
 
 # Show user config
 echo -e "\nYour Configuration\n
@@ -302,7 +302,7 @@ arch-chroot /mnt systemctl enable bluetooth
 echo -e "\n${green}Installing Essential Packages${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
 
-echo -e "\n${bold}${green}
+echo -e "${bold}${green}
 ======================
  Install finished...
 ======================${reset}\n"
