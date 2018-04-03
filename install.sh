@@ -297,20 +297,3 @@ printf "\n
 ======================
  Install finished...
 ======================\n"
-read -p "Reboot? (y/n):  " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    read -p "Unmount /mnt? (y/n):  " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo 'Unmounting /mnt'
-        umount -R /mnt
-    fi
-    printf 'Done!\n'
-else
-    echo 'Unmounting /mnt'
-    umount -R /mnt
-    echo 'Restarting in 3 seconds...'
-    sleep 3
-    reboot
-fi
