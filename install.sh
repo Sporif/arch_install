@@ -87,7 +87,7 @@ reset=$(tput sgr0)
 #exec 2> >(tee -i "stderr.log")
 
 # Show user config
-echo -e "\nYour Configuration\n
+echo -e "\n${bold}Your Configuration${reset}${bold}${yellow}
 ==============================================
  EFI                   | $EFI_PART
  ROOT                  | $ROOT_PART
@@ -112,8 +112,7 @@ echo -e "\nYour Configuration\n
  Xorg                  | $XORG
  Desktop               | $DESKTOP
  Essentials            | $ESSENTIALS
-==============================================
-  \n"
+==============================================${reset}\n"
 lsblk
 echo
 read -p "Is this correct? (y/n):  " -n 1 -r
