@@ -122,14 +122,14 @@ echo
 read -p "Is this correct? (y/n):  " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    printf '${red}Please change the settings at the start of the script${reset}\n'
+    echo -e "${red}Please change the settings at the start of the script${reset}\n"
     exit 1
 fi
 
 # Check Network
 echo -e "\n${magenta}Testing Network${reset}\n"
 if ! ping -c 3 www.archlinux.org; then
-    echo "${red}Network ping check failed. Cannot continue${reset}\n"
+    echo -e "${red}Network ping check failed. Cannot continue${reset}\n"
     exit 1
 fi
 
