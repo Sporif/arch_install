@@ -87,42 +87,39 @@ exec 1> >(tee -i "stdout.log")
 exec 2> >(tee -i "stderr.log")
 
 # Show user config
-printf "\nYour Configuration\n
+echo -e "\nYour Configuration\n
 ==============================================
- EFI                   | %s
- ROOT                  | %s
- Wipe EFI Disk         | %s
- Wipe ROOT Disk        | %s
- Wipe EFI Partition    | %s
- Wipe ROOT Partition   | %s
- EFI Size              | %s
- ROOT Size             | %s
+ EFI                   | $EFI_PART
+ ROOT                  | $ROOT_PART
+ Wipe EFI Disk         | $WIPE_EFI_DISK
+ Wipe ROOT Disk        | $WIPE_ROOT_DISK
+ Wipe EFI Partition    | $WIPE_EFI_PART
+ Wipe ROOT Partition   | $WIPE_ROOT_PART
+ EFI Size              | $EFI_PART_SIZE
+ ROOT Size             | $ROOT_PART_SIZE
  
- Mirrorlist            | %s
- Timezone              | %s
- Locale                | %s
- Keymap                | %s
- Hostname              | %s
- Trim                  | %s
+ Mirrorlist            | $MIRROR
+ Timezone              | $TIMEZONE
+ Locale                | $LOCALE
+ Keymap                | $KEYMAP
+ Hostname              | $HOSTNAME
+ Trim                  | $TRIM
  
- Pacman Multilib       | %s
- Pacman Color          | %s 
- Username              | %s
- Graphics              | %s
- Xorg                  | %s
- Desktop               | %s
- Essentials            | %s
+ Pacman Multilib       | $P_MULTILIB
+ Pacman Color          | $P_COLOR 
+ Username              | $USER_NAME
+ Graphics              | $GRAPHICS
+ Xorg                  | $XORG
+ Desktop               | $DESKTOP
+ Essentials            | $ESSENTIALS
 ==============================================
-  \n" "$EFI_PART" "$ROOT_PART" "$WIPE_EFI_DISK" "$WIPE_ROOT_DISK" \
-"$WIPE_EFI_PART"  "$WIPE_ROOT_PART" "$EFI_PART_SIZE" "$ROOT_PART_SIZE" \
-"$MIRROR" "$TIMEZONE" "$LOCALE" "$KEYMAP" "$HOSTNAME" "$TRIM" "$P_MULTILIB" \
-"$P_COLOR" "$USER_NAME" "$GRAPHICS" "$XORG" "$DESKTOP" "$ESSENTIALS"
+  \n"
 lsblk
 echo
 read -p "Is this correct? (y/n):  " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${red}Please change the settings at the start of the script${reset}\n"
+    echo -e "\n${red}Please change the settings at the start of the script${reset}\n"
     exit 1
 fi
 
@@ -305,7 +302,7 @@ arch-chroot /mnt systemctl enable bluetooth
 echo -e "\n${green}Installing Essential Packages${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
 
-printf "\n
+echo -e "\n${bold}${green}
 ======================
  Install finished...
-======================\n"
+======================${reset}\n"
