@@ -70,6 +70,18 @@ ESSENTIALS='konsole dolphin kate firefox'
 ## Script ##
 ############
 
+# Colors
+black=$(tput setaf 0)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+magenta=$(tput setaf 5)
+cyan=$(tput setaf 6)
+white=$(tput setaf 7)
+bold=$(tput bold)
+reset=$(tput sgr0)
+
 # Logging
 exec 1> >(tee -i "stdout.log")
 exec 2> >(tee -i "stderr.log")
@@ -110,26 +122,26 @@ echo
 read -p "Is this correct? (y/n):  " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    printf 'Please change the settings at the start of the script.\n'
+    printf '${red}Please change the settings at the start of the script${reset}\n'
     exit 1
 fi
 
 # Check Network
-echo -e "\nTesting Network\n"
+echo -e "\n${magenta}Testing Network${reset}\n"
 if ! ping -c 3 www.archlinux.org; then
-    echo "Network ping check failed. Cannot continue."
+    echo "${red}Network ping check failed. Cannot continue${reset}\n"
     exit 1
 fi
 
 # Check UEFI
-echo -e "\nChecking if booted in UEFI mode\n"
+echo -e "\n${magenta}Checking if booted in UEFI mode${reset}\n"
 if [[ ! -d /sys/firmware/efi ]]; then
-    echo -e "\nNot booted in UEFI mode. Cannot continue\n"
+    echo -e "\n${red}Not booted in UEFI mode. Cannot continue${reset}\n"
     exit 1
 fi 
 
 # System clock
-echo -e "Setting System clock\n"
+echo -e "${magenta}Setting System clock${reset}\n"
 timedatectl set-ntp true
 timedatectl set-timezone $TIMEZONE
 timedatectl status
@@ -143,7 +155,7 @@ if [[ $EFI_DISK == "$ROOT_DISK" ]]; then
 fi
 
 if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
-    echo -e "\nWiping $EFI_DISK\n"
+    echo -e "\n${cyan}Wiping $EFI_DISK${reset}\n"
     sgdisk --zap-all $EFI_DISK
     wipefs -a $EFI_DISK
     EFI_PART=${EFI_DISK}1
@@ -151,7 +163,7 @@ if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == '
     WIPE_EFI_DISK='true'
     WIPE_ROOT_DISK='true'
     
-    echo -e "\nPartitioning $EFI_DISK\n"
+    echo -e "\n${cyan}Partitioning $EFI_DISK${reset}\n"
     parted -s $EFI_DISK \
     mklabel gpt \
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
@@ -160,12 +172,12 @@ if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == '
 fi
 
 if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
-    echo -e "Wiping $EFI_DISK\n"
+    echo -e "${cyan}Wiping $EFI_DISK${reset}\n"
     sgdisk --zap-all $EFI_DISK
     wipefs -a $EFI_DISK
     EFI_PART=${EFI_DISK}1
     
-    echo -e "\nPartitioning $EFI_DISK\n"
+    echo -e "\n${cyan}Partitioning $EFI_DISK${reset}\n"
     parted -s $EFI_DISK \
     mklabel gpt \
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
@@ -173,12 +185,12 @@ if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
 fi
 
 if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
-    echo -e "Wiping $ROOT_DISK\n"
+    echo -e "${cyan}Wiping $ROOT_DISK${reset}\n"
     sgdisk --zap-all $ROOT_DISK
     wipefs -a $ROOT_DISK
     ROOT_PART=${ROOT_DISK}1
     
-    echo -e "\nPartitioning $ROOT_DISK\n"
+    echo -e "\n${cyan}Partitioning $ROOT_DISK${reset}\n"
     parted -s $ROOT_DISK \
     mklabel gpt \
     mkpart primary ext4 1MiB $ROOT_PART_SIZE
@@ -186,37 +198,37 @@ fi
 
 # Format partitions
 if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then
-    echo -e "\nFormatting $EFI_PART for EFI\n"
+    echo -e "\n${cyan}Formatting $EFI_PART for EFI${reset}\n"
     wipefs $EFI_PART
     mkfs.vfat -F32 $EFI_PART
 fi
 
 if [[ $WIPE_ROOT_PART == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then 
-    echo -e "\nFormatting $ROOT_PART for ROOT\n"
+    echo -e "\n${cyan}Formatting $ROOT_PART for ROOT${reset}\n"
     wipefs $ROOT_PART
     mkfs.ext4 $ROOT_PART
 fi
 
 # Mount partitions
-echo -e "Mounting $ROOT_PART as ROOT\n"
+echo -e "${cyan}Mounting $ROOT_PART as ROOT${reset}\n"
 mount $ROOT_PART /mnt
 mkdir -p /mnt/boot/efi
-echo -e "Mounting $EFI_PART as EFI\n"
+echo -e "${cyan}Mounting $EFI_PART as EFI${reset}\n"
 mount $EFI_PART /mnt/boot/efi
 
 # Mirrorlist
-echo -e "Setting Mirrorlist: $MIRROR\n"
+echo -e "${cyan}Setting Mirrorlist: $MIRROR${reset}\n"
 mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 
 wget "https://www.archlinux.org/mirrorlist/?country=${MIRROR}&use_mirror_status=on" -O /etc/pacman.d/mirrorlist
 sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
 
 # Base system
-echo -e "Installing base system\n"
+echo -e "${cyan}Installing base system${reset}\n"
 pacstrap /mnt base base-devel
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Config
-echo -e "\nSetting misc settings\n"
+echo -e "\n${cyan}Setting misc settings${reset}\n"
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 arch-chroot /mnt hwclock --systohc --utc
 sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
@@ -227,22 +239,22 @@ echo "$HOSTNAME" > /mnt/etc/hostname
 [[ $TRIM == 'true' ]] && arch-chroot /mnt systemctl enable fstrim.timer
 
 # Pacman
-echo -e "\nSetting up Pacman\n"
+echo -e "\n${cyan}Setting up Pacman${reset}\n"
 [[ $P_MULTILIB == 'true' ]] && sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
 [[ $P_COLOR == 'true' ]] && sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 arch-chroot /mnt pacman -Syu --noconfirm
 
 # User
-echo -e "\nSetting up user: $USER_NAME\n"
+echo -e "\n${cyan}Setting up user: $USER_NAME${reset}\n"
 arch-chroot /mnt useradd -m -G wheel -s /bin/bash $USER_NAME
 echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /mnt/etc/sudoers.d/99_wheel 
 echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root /mnt
 echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
 
-echo -e "Start of packages installation\n"
+echo -e "${bold}${green}Start of packages installation${reset}\n"
 
 # Boot Manager/loader
-echo -e "Installing Boot Manager: Refind\n"
+echo -e "${green}Installing Boot Manager: Refind${reset}\n"
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 arch-chroot /mnt pacman -S --noconfirm refind-efi
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
@@ -256,16 +268,16 @@ cat << EOF > /mnt/boot/refind_linux.conf
 EOF
 
 # Graphics Drivers
-echo -e "\nInstalling Graphics Drivers\n"
+echo -e "\n${green}Installing Graphics Drivers${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
 
 # Xorg
-echo -e "\nInstalling Xorg\n"
+echo -e "\n${green}Installing Xorg${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm $XORG
 
 # Desktop Env
-echo -e "\nInstalling Desktop Environment\n"
+echo -e "\n${green}Installing Desktop Environment${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm $DESKTOP
 if [[ $DESKTOP == "$PLASMA" ]]; then
     arch-chroot /mnt pacman -S --noconfirm sddm sddm-kcm
@@ -273,24 +285,24 @@ if [[ $DESKTOP == "$PLASMA" ]]; then
 fi
 
 # Audio
-echo -e "\nInstalling Audio\n"
+echo -e "\n${green}Installing Audio${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm pulseaudio pulseaudio-alsa pulseaudio-bluetooth
 [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-pa
 
 # Network
-echo -e "\nInstalling Network\n"
+echo -e "\n${green}Installing Network${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm networkmanager
 arch-chroot /mnt systemctl enable NetworkManager
 [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-nm
 
 # Bluetooth
-echo -e "\nInstalling Bluetooth\n"
+echo -e "\n${green}Installing Bluetooth${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm bluez bluez-utils
 arch-chroot /mnt systemctl enable bluetooth
 [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm bluedevil
 
 # Essential Packages
-echo -e "\nInstalling Essential Packages\n"
+echo -e "\n${green}Installing Essential Packages${reset}\n"
 arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
 
 printf "\n
