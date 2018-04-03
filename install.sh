@@ -4,7 +4,6 @@ set -euo pipefail
 
 ######################################
 # Arch Linux UEFI install script
-# Usage:
 # Download:         curl -sL https://git.io/vxwvx > install.sh
 # Edit script:      nano install.sh
 # Make executable:  chmod +x install.sh
@@ -48,8 +47,8 @@ P_COLOR='true'
 
 # User
 USER_NAME='arch'
-ROOT_PASSWORD='archlinux'
-USER_PASSWORD='archlinux'
+ROOT_PASSWORD='arch'
+USER_PASSWORD='arch'
 
 # Grpahics Drivers
 NVIDIA='linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings'
@@ -71,21 +70,9 @@ ESSENTIALS='konsole dolphin kate firefox'
 ## Script ##
 ############
 
-# Colors
-black=$(tput setaf 0)
-red=$(tput setaf 1)
-green=$(tput setaf 2)
-yellow=$(tput setaf 3)
-blue=$(tput setaf 4)
-magenta=$(tput setaf 5)
-cyan=$(tput setaf 6)
-white=$(tput setaf 7)
-bold=$(tput bold)
-reset=$(tput sgr0)
-
 # Logging
-#exec 1> >(tee "stdout.log")
-#exec 2> >(tee "stderr.log")
+exec 1> >(tee -i "stdout.log")
+exec 2> >(tee -i "stderr.log")
 
 # Show user config
 printf "\nYour Configuration\n
@@ -148,7 +135,6 @@ timedatectl set-timezone $TIMEZONE
 timedatectl status
 
 # Make partitions
-SAME_DEVICE='false'
 EFI_DISK=${EFI_PART%?}
 ROOT_DISK=${ROOT_PART%?}
 
@@ -255,6 +241,20 @@ echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
 
 echo -e "\nStart of packages installation\n"
 
+# Boot Manager/loader
+echo -e "\nInstalling Boot Manager: Refind\n"
+ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
+arch-chroot /mnt pacman -S --noconfirm refind-efi
+[[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
+if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
+    echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
+fi
+cat << EOF > /mnt/boot/refind_linux.conf
+"Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap"
+"Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
+"Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap systemd.unit=multi-user.target"
+EOF
+
 # Graphics Drivers
 echo -e "Installing Graphics Drivers\n"
 arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
@@ -293,20 +293,6 @@ arch-chroot /mnt systemctl enable bluetooth
 echo -e "\nInstalling Essential Packages\n"
 arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
 
-# Boot Manager/loader
-echo -e "\nInstalling Boot Manager: Refind\n"
-ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
-arch-chroot /mnt pacman -S --noconfirm refind-efi
-[[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
-if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
-    echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
-fi
-cat << EOF > /mnt/boot/refind_linux.conf
-"Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap"
-"Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
-"Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap systemd.unit=multi-user.target"
-EOF
-
 printf "\n
 ======================
  Install finished...
@@ -314,6 +300,11 @@ printf "\n
 read -p "Reboot? (y/n):  " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    read -p "Unmount /mnt? (y/n):  " -n 1 -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo 'Unmounting /mnt'
+        umount -R /mnt
+    fi
     printf 'Done!\n'
 else
     echo 'Unmounting /mnt'
