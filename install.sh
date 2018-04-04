@@ -247,8 +247,8 @@ echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > /mnt/etc/sudoers.d/99_wheel
 echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root /mnt
 echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
 
+# Package Installs
 echo -e "${bold}${green}Start of packages installation${reset}\n"
-
 pac-chroot() {
     arch-chroot /mnt pacman -S --noconfirm --needed "$@"
 } 
