@@ -249,10 +249,14 @@ echo "root:$ROOT_PASSWORD" | chpasswd --root /mnt
 
 echo -e "${bold}${green}Start of packages installation${reset}\n"
 
+pac-chroot() {
+    arch-chroot /mnt pacman -S --noconfirm --needed "$@"
+} 
+
 # Boot Manager/loader
 echo -e "${green}Installing Boot Manager: Refind${reset}\n"
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
-arch-chroot /mnt pacman -S --noconfirm refind-efi
+pac-chroot refind-efi
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
 if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
     echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
@@ -265,41 +269,41 @@ EOF
 
 # Graphics Drivers
 echo -e "\n${green}Installing Graphics Drivers${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm $GRAPHICS
+pac-chroot $GRAPHICS
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
 
 # Xorg
 echo -e "\n${green}Installing Xorg${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm $XORG
+pac-chroot $XORG
 
 # Desktop Env
 echo -e "\n${green}Installing Desktop Environment${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm $DESKTOP
+pac-chroot $DESKTOP
 if [[ $DESKTOP == "$PLASMA" ]]; then
-    arch-chroot /mnt pacman -S --noconfirm sddm sddm-kcm
+    pac-chroot sddm sddm-kcm
     arch-chroot /mnt systemctl enable sddm
 fi
 
 # Audio
 echo -e "\n${green}Installing Audio${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm pulseaudio pulseaudio-alsa pulseaudio-bluetooth
-[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-pa
+pac-chroot pulseaudio pulseaudio-alsa pulseaudio-bluetooth
+[[ $DESKTOP == "$PLASMA" ]] && pac-chroot plasma-pa
 
 # Network
 echo -e "\n${green}Installing Network${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm networkmanager
+pac-chroot networkmanager
 arch-chroot /mnt systemctl enable NetworkManager
-[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm plasma-nm
+[[ $DESKTOP == "$PLASMA" ]] && pac-chroot plasma-nm
 
 # Bluetooth
 echo -e "\n${green}Installing Bluetooth${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm bluez bluez-utils
+pac-chroot bluez bluez-utils
 arch-chroot /mnt systemctl enable bluetooth
-[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt pacman -S --noconfirm bluedevil
+[[ $DESKTOP == "$PLASMA" ]] && pac-chroot bluedevil
 
 # Essential Packages
 echo -e "\n${green}Installing Essential Packages${reset}\n"
-arch-chroot /mnt pacman -S --noconfirm $ESSENTIALS
+pac-chroot $ESSENTIALS
 
 echo -e "${bold}${green}
 ======================
