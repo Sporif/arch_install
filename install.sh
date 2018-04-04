@@ -60,7 +60,7 @@ GRAPHICS=$VIRTUALBOX
 XORG='xorg'
 
 # Desktop Env
-PLASMA='plasma-desktop kinfocenter kde-gtk-config breeze-gtk user-manager kscreen powerdevil'
+PLASMA='plasma-desktop kinfocenter kde-gtk-config breeze-gtk kwalletmanager user-manager kscreen powerdevil'
 DESKTOP=$PLASMA
 
 # Essential Packages
@@ -258,9 +258,9 @@ if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
     echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
 fi
 cat << EOF > /mnt/boot/refind_linux.conf
-"Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap"
-"Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap initrd=/boot/initramfs-linux-fallback.img"
-"Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap systemd.unit=multi-user.target"
+"Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0"
+"Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 initrd=/boot/initramfs-linux-fallback.img"
+"Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 systemd.unit=multi-user.target"
 EOF
 
 # Graphics Drivers
