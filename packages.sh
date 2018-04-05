@@ -50,6 +50,7 @@ winetricks
 wireguard-dkms
 wireguard-tools
 "
+sudo pacman -Syu
 sudo pacman -S --noconfirm --needed $ABS
 
 # AUR:
