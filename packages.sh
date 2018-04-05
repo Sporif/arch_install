@@ -1,5 +1,13 @@
 #!/bin/bash
 
+######################################
+# Arch Linux packages
+# Download:         curl -sL https://git.io/vxyTi > packages.sh
+# Edit script:      nano packages.sh
+# Make executable:  chmod +x packages.sh
+# Start it:         ./packages.sh
+######################################
+
 # ABS:
 pkgs="
 android-tools
