@@ -9,12 +9,13 @@
 ######################################
 
 # ABS:
-pkgs="
+ABS="
 android-tools
 android-udev
 ark
 cantata
 displaycal
+dnscrypt-proxy
 filelight
 firefox
 git
@@ -26,7 +27,6 @@ iotop
 jdk8-openjdk
 jre8-openjdk
 kcalc
-kdiff3
 kdeconnect
 libreoffice-fresh
 mtpfs
@@ -50,20 +50,17 @@ winetricks
 wireguard-dkms
 wireguard-tools
 "
-for pkg in $pkgs; do 
-    pacman -S --noconfirm --needed $pkg
-done
+sudo pacman -S --noconfirm --needed $ABS
 
 # AUR:
 git clone https://aur.archlinux.org/yay-bin.git
 cd yay-bin
-makepkg -sric
+makepkg -sric --noconfirm --needed
 cd ../
 rm -rf yay-bin
 
-pkgs="
+AUR="
 discord
-dnscrypt-proxy-go
 downgrade
 duplicati2-beta
 firefox-beta-bin
@@ -74,6 +71,4 @@ latte-dock-git
 lostfiles
 waterfox-bin
 "
-for pkg in $pkgs; do 
-    yay -S --noconfirm $pkg
-done
+yay -S --noconfirm --needed $AUR
