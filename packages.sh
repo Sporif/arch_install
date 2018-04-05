@@ -53,11 +53,13 @@ wireguard-tools
 sudo pacman -S --noconfirm --needed $ABS
 
 # AUR:
-git clone https://aur.archlinux.org/yay-bin.git
-cd yay-bin
-makepkg -sric --noconfirm --needed
-cd ../
-rm -rf yay-bin
+if [ ! -f /usr/bin/yay ]; then
+    git clone https://aur.archlinux.org/yay-bin.git
+    cd yay-bin
+    makepkg -sric --noconfirm --needed
+    cd ../
+    rm -rf yay-bin
+fi
 
 AUR="
 discord
