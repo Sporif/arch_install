@@ -56,15 +56,11 @@ VIRTUALBOX='virtualbox-guest-utils virtualbox-guest-modules-arch'
 GRAPHICS=$VIRTUALBOX
 
 # Xorg
-#XORG='xorg-server xorg-apps'
-XORG='xorg'
+XORG='xorg-server xorg-apps'
 
 # Desktop Env
-PLASMA='plasma-desktop kinfocenter kde-gtk-config breeze-gtk kwalletmanager user-manager kscreen powerdevil'
+PLASMA='plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk kwalletmanager user-manager kscreen colord-kde powerdevil konsole dolphin kate'
 DESKTOP=$PLASMA
-
-# Essential Packages
-ESSENTIALS='konsole dolphin kate firefox'
 
 ############
 ## Script ##
@@ -111,7 +107,6 @@ echo -e "\n${bold}Your Configuration${reset}${bold}${yellow}
  Graphics              | $GRAPHICS
  Xorg                  | $XORG
  Desktop               | $DESKTOP
- Essentials            | $ESSENTIALS
 ==============================================${reset}\n"
 lsblk
 echo
@@ -276,34 +271,26 @@ pac-chroot $GRAPHICS
 echo -e "\n${green}Installing Xorg${reset}\n"
 pac-chroot $XORG
 
-# Desktop Env
-echo -e "\n${green}Installing Desktop Environment${reset}\n"
-pac-chroot $DESKTOP
-if [[ $DESKTOP == "$PLASMA" ]]; then
-    pac-chroot sddm sddm-kcm
-    arch-chroot /mnt systemctl enable sddm
-fi
-
 # Audio
 echo -e "\n${green}Installing Audio${reset}\n"
 pac-chroot pulseaudio pulseaudio-alsa pulseaudio-bluetooth
-[[ $DESKTOP == "$PLASMA" ]] && pac-chroot plasma-pa
 
 # Network
 echo -e "\n${green}Installing Network${reset}\n"
 pac-chroot networkmanager
 arch-chroot /mnt systemctl enable NetworkManager
-[[ $DESKTOP == "$PLASMA" ]] && pac-chroot plasma-nm
 
 # Bluetooth
 echo -e "\n${green}Installing Bluetooth${reset}\n"
 pac-chroot bluez bluez-utils
 arch-chroot /mnt systemctl enable bluetooth
-[[ $DESKTOP == "$PLASMA" ]] && pac-chroot bluedevil
 
-# Essential Packages
-echo -e "\n${green}Installing Essential Packages${reset}\n"
-pac-chroot $ESSENTIALS
+# Desktop Env
+echo -e "\n${green}Installing Desktop Environment${reset}\n"
+pac-chroot $DESKTOP
+if [[ $DESKTOP == "$PLASMA" ]]; then
+    arch-chroot /mnt systemctl enable sddm
+fi
 
 echo -e "${bold}${green}
 ======================

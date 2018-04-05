@@ -6,9 +6,9 @@ android-tools
 android-udev
 ark
 cantata
-colord-kde
 displaycal
 filelight
+firefox
 git
 gsmartcontrol
 gwenview
