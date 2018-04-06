@@ -8,7 +8,6 @@
 # Start it:         ./packages.sh
 ######################################
 
-# ABS:
 ABS="
 android-tools
 android-udev
@@ -50,17 +49,6 @@ winetricks
 wireguard-dkms
 wireguard-tools
 "
-sudo pacman -Syu
-sudo pacman -S --noconfirm --needed $ABS
-
-# AUR:
-if [ ! -f /usr/bin/yay ]; then
-    git clone https://aur.archlinux.org/yay-bin.git
-    cd yay-bin
-    makepkg -sric --noconfirm --needed
-    cd ../
-    rm -rf yay-bin
-fi
 
 AUR="
 discord
@@ -74,4 +62,16 @@ latte-dock-git
 lostfiles
 waterfox-bin
 "
+
+sudo pacman -Syu
+sudo pacman -S --noconfirm --needed $ABS
+
+if [ ! -f /usr/bin/yay ]; then
+    git clone https://aur.archlinux.org/yay-bin.git
+    cd yay-bin
+    makepkg -sric --noconfirm --needed
+    cd ../
+    rm -rf yay-bin
+fi
+
 yay -S --noconfirm --needed $AUR
