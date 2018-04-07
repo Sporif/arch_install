@@ -60,7 +60,8 @@ XORG='xorg-server xorg-apps'
 
 # Desktop Env
 PLASMA='plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk \
-kdeplasma-addons kwalletmanager user-manager kscreen colord-kde powerdevil konsole dolphin kate'
+kdeplasma-addons kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil \
+konsole dolphin dolphin-plugins kate'
 DESKTOP=$PLASMA
 
 ############
