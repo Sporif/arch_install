@@ -59,7 +59,8 @@ GRAPHICS=$VIRTUALBOX
 XORG='xorg-server xorg-apps'
 
 # Desktop Env
-PLASMA='plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk kwalletmanager user-manager kscreen colord-kde powerdevil konsole dolphin kate'
+PLASMA='plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk \
+kdeplasma-addons kwalletmanager user-manager kscreen colord-kde powerdevil konsole dolphin kate'
 DESKTOP=$PLASMA
 
 ############
