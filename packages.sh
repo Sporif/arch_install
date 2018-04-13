@@ -29,7 +29,6 @@ jre8-openjdk
 kcalc
 kdeconnect
 libreoffice-fresh
-mtpfs
 ncdu
 ntfs-3g
 obs-studio
@@ -40,6 +39,7 @@ partitionmanager
 pkgstats
 qbittorrent
 screenfetch
+simple-mtpfs
 speedtest-cli
 steam
 veracrypt
