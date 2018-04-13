@@ -37,6 +37,7 @@ okular
 openssh
 papirus-icon-theme
 partitionmanager
+pkgstats
 qbittorrent
 screenfetch
 speedtest-cli
