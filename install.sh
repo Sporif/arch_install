@@ -56,7 +56,7 @@ VIRTUALBOX='virtualbox-guest-utils virtualbox-guest-modules-arch'
 GRAPHICS=$VIRTUALBOX
 
 # Xorg
-XORG='xorg-server xorg-apps'
+XORG='xorg'
 
 # Desktop Env
 PLASMA='plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk \
