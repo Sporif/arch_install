@@ -42,6 +42,7 @@ speedtest-cli
 steam
 veracrypt
 vlc
+wget
 wine_gecko
 wine-mono
 wine-staging lib32-gnutls lib32-libldap
