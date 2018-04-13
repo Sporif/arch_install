@@ -12,6 +12,7 @@ ABS="
 android-tools
 android-udev
 ark
+bash-completion
 cantata
 displaycal
 dnscrypt-proxy
