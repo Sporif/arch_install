@@ -15,6 +15,7 @@ ark
 cantata
 displaycal
 dnscrypt-proxy
+expac
 filelight
 firefox
 git
