@@ -44,7 +44,7 @@ veracrypt
 vlc
 wine_gecko
 wine-mono
-wine-staging
+wine-staging lib32-gnutls lib32-libldap
 winetricks
 wireguard-dkms
 wireguard-tools
