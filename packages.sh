@@ -48,10 +48,17 @@ vlc
 wget
 wine_gecko
 wine-mono
-wine-staging lib32-gnutls lib32-libldap
+wine-staging
 winetricks
 wireguard-dkms
 wireguard-tools
+"
+
+WINE_OPT_DEPS="
+lib32-gnutls
+lib32-libldap
+lib32-openal
+lib32-libpulse
 "
 
 AUR="
@@ -69,6 +76,7 @@ waterfox-bin
 
 sudo pacman -Syu
 sudo pacman -S --noconfirm --needed $ABS
+sudo pacman -S --noconfirm --needed --asdeps $WINE_OPT_DEPS
 
 if [ ! -f /usr/bin/yay ]; then
     git clone https://aur.archlinux.org/yay-bin.git
