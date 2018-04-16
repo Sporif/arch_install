@@ -46,9 +46,9 @@ steam
 veracrypt
 vlc
 wget
+wine-staging
 wine_gecko
 wine-mono
-wine-staging
 winetricks
 wireguard-dkms
 wireguard-tools
