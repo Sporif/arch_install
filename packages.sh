@@ -42,6 +42,7 @@ qbittorrent
 screenfetch
 simple-mtpfs
 speedtest-cli
+sshfs
 steam
 veracrypt
 vlc
