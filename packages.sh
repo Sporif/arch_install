@@ -70,9 +70,9 @@ firefox-beta-bin
 firefox-nightly
 freefilesync
 fsearch-git
+waterfox-kde-bin
 latte-dock-git
 lostfiles
-waterfox-bin
 "
 
 sudo pacman -Syu
