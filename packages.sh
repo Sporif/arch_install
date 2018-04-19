@@ -39,6 +39,7 @@ papirus-icon-theme
 partitionmanager
 pkgstats
 qbittorrent
+reflector
 screenfetch
 simple-mtpfs
 speedtest-cli
@@ -63,6 +64,7 @@ lib32-libpulse
 "
 
 AUR="
+cylon
 discord
 downgrade
 duplicati2-beta
@@ -70,9 +72,13 @@ firefox-beta-bin
 firefox-nightly
 freefilesync
 fsearch-git
-waterfox-kde-bin
 latte-dock-git
 lostfiles
+pacmanlogger-git 
+pacolog
+qtwebflix-git
+simple-mtpfs
+waterfox-kde-bin
 "
 
 sudo pacman -Syu
