@@ -13,7 +13,7 @@ android-tools
 android-udev
 ark
 bash-completion
-cantata
+deadbeef
 displaycal
 dnscrypt-proxy
 expac
