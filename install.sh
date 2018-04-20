@@ -39,11 +39,6 @@ TIMEZONE='Europe/London'
 LOCALE='en_GB.UTF-8'
 KEYMAP='us'
 HOSTNAME='arch-pc'
-TRIM='true'
-
-# Pacman 
-P_MULTILIB='true'
-P_COLOR='true'
 
 # User
 USER_NAME='arch'
@@ -101,10 +96,6 @@ echo -e "\n${bold}Your Configuration${reset}${bold}${yellow}
  Locale                | $LOCALE
  Keymap                | $KEYMAP
  Hostname              | $HOSTNAME
- Trim                  | $TRIM
- 
- Pacman Multilib       | $P_MULTILIB
- Pacman Color          | $P_COLOR 
  Username              | $USER_NAME
  Graphics              | $GRAPHICS
  Xorg                  | $XORG
@@ -222,6 +213,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Config
 echo -e "\n${cyan}Setting misc settings${reset}\n"
+
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 arch-chroot /mnt hwclock --systohc --utc
 sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
@@ -229,12 +221,12 @@ arch-chroot /mnt locale-gen
 echo "LANG=$LOCALE" > /mnt/etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
 echo "$HOSTNAME" > /mnt/etc/hostname
-[[ $TRIM == 'true' ]] && arch-chroot /mnt systemctl enable fstrim.timer
+arch-chroot /mnt systemctl enable fstrim.timer
 
 # Pacman
 echo -e "\n${cyan}Setting up Pacman${reset}\n"
-[[ $P_MULTILIB == 'true' ]] && sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
-[[ $P_COLOR == 'true' ]] && sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
+sed -i "/\[multilib\]/,/Include/"'s/^#//' /mnt/etc/pacman.conf
+sed -i 's/#Color/Color/' /mnt/etc/pacman.conf
 arch-chroot /mnt pacman -Syu --noconfirm
 
 # User
