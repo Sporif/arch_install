@@ -61,6 +61,7 @@ lib32-gnutls
 lib32-libldap
 lib32-openal
 lib32-libpulse
+lib32-vulkan-icd-loader
 "
 
 AUR="
