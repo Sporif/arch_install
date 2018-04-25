@@ -213,10 +213,10 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 # Config
 echo -e "\n${cyan}Setting misc settings${reset}\n"
-
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 arch-chroot /mnt hwclock --systohc --utc
 sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+sed -i "s/^#en_US.UTF-8/en_US.UTF-8/" /mnt/etc/locale.gen
 arch-chroot /mnt locale-gen
 echo "LANG=$LOCALE" > /mnt/etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
