@@ -47,6 +47,7 @@ speedtest-cli
 sshfs
 steam
 ttf-liberation
+ttf-dejavu
 veracrypt
 vlc
 wget
