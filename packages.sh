@@ -41,6 +41,7 @@ partitionmanager
 pkgstats
 qbittorrent
 reflector
+rsync
 screenfetch
 simple-mtpfs
 speedtest-cli
@@ -57,6 +58,7 @@ wine-mono
 winetricks
 wireguard-dkms
 wireguard-tools
+yakuake
 "
 
 WINE_OPT_DEPS="
@@ -78,6 +80,7 @@ freefilesync
 fsearch-git
 latte-dock-git
 lostfiles
+masterpassword-gui
 pacmanlogger-git 
 pacolog
 qtwebflix-git
