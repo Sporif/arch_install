@@ -80,7 +80,7 @@ fsearch-git
 latte-dock-git
 lostfiles
 masterpassword-gui
-pacmanlogger-git 
+pacmanlogger-git
 pacolog
 qtwebflix-git
 simple-mtpfs
