@@ -16,47 +16,47 @@ set -euo pipefail
 
 # Partitioning
 # If these partitions do not exist, either make them or set WIPE_EFI_DISK and/or WIPE_ROOT_DISK to true
-EFI_PART='/dev/sda1'
-ROOT_PART='/dev/sda2'
+EFI_PART="/dev/sda1"
+ROOT_PART="/dev/sda2"
 
 # These need to be true if the containing disk(s) is not GPT or the partitions don't exist
 # If EFI and ROOT are on same disk then either can be set to true to wipe it
 # If the containing disk(s) are being wiped then partition numbers specified above will be ignored
-WIPE_EFI_DISK='false' # true: disk containing EFI_PART will be zapped and wiped
-WIPE_ROOT_DISK='false' # true: disk containing ROOT_PART will be zapped and wiped
+WIPE_EFI_DISK="false" # true: disk containing EFI_PART will be zapped and wiped
+WIPE_ROOT_DISK="false" # true: disk containing ROOT_PART will be zapped and wiped
 
 # These are irrelevant if containing disk is being wiped
-WIPE_EFI_PART='false' # Shouldn't be true if you want to keep other OSs in EFI
-WIPE_ROOT_PART='true' # Should normally be true, unless there's data you want to keep, e.g. /home
+WIPE_EFI_PART="false" # Shouldn't be true if you want to keep other OSs in EFI
+WIPE_ROOT_PART="true" # Should normally be true, unless there's data you want to keep, e.g. /home
 
 # These are only used if containing disk is being wiped 
 EFI_PART_SIZE=513MiB
 ROOT_PART_SIZE=100%
 
 # Config
-MIRROR='GB'
-TIMEZONE='Europe/London'
-LOCALE='en_GB.UTF-8'
-KEYMAP='us'
-HOSTNAME='arch-pc'
+MIRROR="GB"
+TIMEZONE="Europe/London"
+LOCALE="en_GB.UTF-8"
+KEYMAP="us"
+HOSTNAME="arch-pc"
 
 # User
-USER_NAME='arch'
-ROOT_PASSWORD='arch'
-USER_PASSWORD='arch'
+USER_NAME="arch"
+ROOT_PASSWORD="arch"
+USER_PASSWORD="arch"
 
 # Grpahics Drivers
-NVIDIA='linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings'
-VIRTUALBOX='virtualbox-guest-utils virtualbox-guest-modules-arch'
+NVIDIA="linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings"
+VIRTUALBOX="virtualbox-guest-utils virtualbox-guest-modules-arch"
 GRAPHICS=$VIRTUALBOX
 
 # Xorg
-XORG='xorg'
+XORG="xorg"
 
 # Desktop Env
-PLASMA='plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk \
-kdeplasma-addons kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil \
-konsole dolphin dolphin-plugins kate yakuake'
+PLASMA="plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk
+kdeplasma-addons kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil
+konsole dolphin dolphin-plugins kate yakuake"
 DESKTOP=$PLASMA
 
 ############
