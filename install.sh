@@ -252,47 +252,35 @@ pac-chroot() {
 
 # Boot Manager/loader
 echo -e "${green}Installing Boot Manager: Refind${reset}\n"
-ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 pac-chroot refind-efi
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
-if [[ $GRAPHICS == "$VIRTUALBOX" ]]; then
-    echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
-fi
+[[ $GRAPHICS == "$VIRTUALBOX" ]] && echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
+ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 cat << EOF > /mnt/boot/refind_linux.conf
 "Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0"
 "Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 initrd=/boot/initramfs-linux-fallback.img"
 "Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 systemd.unit=multi-user.target"
 EOF
 
+# Xorg
+echo -e "\n${green}Installing Xorg${reset}\n"
+pac-chroot $XORG
+
+# Network, Audio & Bluetooth
+echo -e "\n${green}Installing Network, Audio & Bluetooth${reset}\n"
+pac-chroot networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils
+arch-chroot /mnt systemctl enable NetworkManager
+arch-chroot /mnt systemctl enable bluetooth
+
 # Graphics Drivers
 echo -e "\n${green}Installing Graphics Drivers${reset}\n"
 pac-chroot $GRAPHICS
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
 
-# Xorg
-echo -e "\n${green}Installing Xorg${reset}\n"
-pac-chroot $XORG
-
-# Audio
-echo -e "\n${green}Installing Audio${reset}\n"
-pac-chroot pulseaudio pulseaudio-alsa pulseaudio-bluetooth
-
-# Network
-echo -e "\n${green}Installing Network${reset}\n"
-pac-chroot networkmanager
-arch-chroot /mnt systemctl enable NetworkManager
-
-# Bluetooth
-echo -e "\n${green}Installing Bluetooth${reset}\n"
-pac-chroot bluez bluez-utils
-arch-chroot /mnt systemctl enable bluetooth
-
 # Desktop Env
 echo -e "\n${green}Installing Desktop Environment${reset}\n"
 pac-chroot $DESKTOP
-if [[ $DESKTOP == "$PLASMA" ]]; then
-    arch-chroot /mnt systemctl enable sddm
-fi
+[[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt systemctl enable sddm
 
 echo -e "${bold}${green}
 ======================
