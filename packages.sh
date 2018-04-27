@@ -31,6 +31,7 @@ kcalc
 kdeconnect
 libreoffice-fresh
 ncdu
+noto-fonts
 ntfs-3g
 obs-studio
 okular
