@@ -45,6 +45,7 @@ simple-mtpfs
 speedtest-cli
 sshfs
 steam
+ttf-liberation
 veracrypt
 vlc
 wget
