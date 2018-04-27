@@ -237,7 +237,7 @@ echo -e "${cyan}Installing base system${reset}\n"
 pacstrap /mnt base base-devel
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# Config
+# Settings
 echo -e "\n${cyan}Setting misc settings${reset}\n"
 arch-chroot /mnt ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
 arch-chroot /mnt hwclock --systohc --utc
