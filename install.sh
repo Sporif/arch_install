@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -x # For Debugging
+# set -x # For debugging
 set -euo pipefail
 
 ######################################
@@ -33,7 +33,7 @@ WIPE_ROOT_PART="true" # Should normally be true, unless there's data you want to
 EFI_PART_SIZE=513MiB
 ROOT_PART_SIZE=100%
 
-# Config
+# Settings
 MIRROR="GB"
 TIMEZONE="Europe/London"
 LOCALE="en_GB.UTF-8"
@@ -45,7 +45,24 @@ USER_NAME="arch"
 ROOT_PASSWORD="arch"
 USER_PASSWORD="arch"
 
-# Grpahics Drivers
+## Packages
+
+# Boot Loader
+BOOTLOADER="
+refind-efi
+"
+
+# Xorg
+XORG="
+xorg
+"
+
+# Essentials - network, audio & bluetooth
+ESSENTIALS="
+networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils
+"
+
+# Graphics Drivers
 NVIDIA="
 linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings
 "
@@ -53,11 +70,6 @@ VIRTUALBOX="
 virtualbox-guest-utils virtualbox-guest-modules-arch
 "
 GRAPHICS=$VIRTUALBOX
-
-# Xorg
-XORG="
-xorg
-"
 
 # Desktop Env
 PLASMA="
@@ -88,8 +100,9 @@ reset=$(tput sgr0)
 #exec 2> >(tee -i "stderr.log")
 
 # Show user config
-echo -e "\n${bold}Your Configuration${reset}${bold}${yellow}
+echo -e "\n${bold}Your configuration${reset}${bold}${yellow}
 ==============================================
+           Partitioning:
  EFI                   | $EFI_PART
  ROOT                  | $ROOT_PART
  Wipe EFI Disk         | $WIPE_EFI_DISK
@@ -99,14 +112,19 @@ echo -e "\n${bold}Your Configuration${reset}${bold}${yellow}
  EFI Size              | $EFI_PART_SIZE
  ROOT Size             | $ROOT_PART_SIZE
  
+               Settings:
  Mirrorlist            | $MIRROR
  Timezone              | $TIMEZONE
  Locale                | $LOCALE
  Keymap                | $KEYMAP
  Hostname              | $HOSTNAME
  Username              | $USER_NAME
- Graphics              | $GRAPHICS
+ 
+               Packages:
+ Boot Loader           | $BOOTLOADER
  Xorg                  | $XORG
+ Essentials            | $ESSENTIALS
+ Graphics              | $GRAPHICS
  Desktop               | $DESKTOP
 ==============================================${reset}\n"
 lsblk
@@ -250,9 +268,9 @@ pac-chroot() {
     arch-chroot /mnt pacman -S --noconfirm --needed "$@"
 } 
 
-# Boot Manager/loader
+# Boot Loader
 echo -e "${green}Installing Boot Manager: Refind${reset}\n"
-pac-chroot refind-efi
+pac-chroot $BOOTLOADER
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
@@ -268,7 +286,7 @@ pac-chroot $XORG
 
 # Network, Audio & Bluetooth
 echo -e "\n${green}Installing Network, Audio & Bluetooth${reset}\n"
-pac-chroot networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils
+pac-chroot $ESSENTIALS
 arch-chroot /mnt systemctl enable NetworkManager
 arch-chroot /mnt systemctl enable bluetooth
 
@@ -283,6 +301,6 @@ pac-chroot $DESKTOP
 [[ $DESKTOP == "$PLASMA" ]] && arch-chroot /mnt systemctl enable sddm
 
 echo -e "${bold}${green}
-======================
- Install finished...
-======================${reset}\n"
+==================
+ Install finished
+==================${reset}\n"
