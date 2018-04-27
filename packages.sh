@@ -43,7 +43,6 @@ qbittorrent
 reflector
 rsync
 screenfetch
-simple-mtpfs
 speedtest-cli
 sshfs
 steam
