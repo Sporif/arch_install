@@ -46,17 +46,25 @@ ROOT_PASSWORD="arch"
 USER_PASSWORD="arch"
 
 # Grpahics Drivers
-NVIDIA="linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings"
-VIRTUALBOX="virtualbox-guest-utils virtualbox-guest-modules-arch"
+NVIDIA="
+linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings
+"
+VIRTUALBOX="
+virtualbox-guest-utils virtualbox-guest-modules-arch
+"
 GRAPHICS=$VIRTUALBOX
 
 # Xorg
-XORG="xorg"
+XORG="
+xorg
+"
 
 # Desktop Env
-PLASMA="plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk
+PLASMA="
+plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk
 kdeplasma-addons kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil
-konsole dolphin dolphin-plugins kate yakuake"
+konsole dolphin dolphin-plugins kate yakuake
+"
 DESKTOP=$PLASMA
 
 ############
