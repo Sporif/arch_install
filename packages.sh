@@ -57,7 +57,6 @@ wine-mono
 winetricks
 wireguard-dkms
 wireguard-tools
-yakuake
 "
 
 WINE_OPT_DEPS="
