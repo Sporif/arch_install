@@ -37,7 +37,7 @@ should_be_installed="$(echo "$BASE $BOOTLOADER $ESSENTIALS $NVIDIA $PLASMA $ABS 
 echo -e "\nChecking for installed packages not in install.sh or packages.sh"
 echo "======================================================="
 echo "$(echo "$should_be_installed" | wc -l) packages should be explicitly installed"
-echo "$(pacman -Qeq | wc -l) packages explicitly installed"
+echo "$(pacman -Qeq | wc -l) packages actually explicitly installed"
 echo
 
 echo "$(comm -23 <(pacman -Qeq | sort) <(echo "$should_be_installed") | wc -l) extra packages installed:"
