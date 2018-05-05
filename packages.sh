@@ -44,6 +44,7 @@ obs-studio
 okular
 openssh
 ovmf
+pacutils
 papirus-icon-theme
 partitionmanager
 pkgstats
@@ -71,8 +72,8 @@ wireguard-tools
 WINE_OPT_DEPS="
 lib32-gnutls
 lib32-libldap
-lib32-openal
 lib32-libpulse
+lib32-openal
 lib32-vulkan-icd-loader
 "
 
@@ -92,9 +93,14 @@ masterpassword-gui
 pacmanlogger-git
 pacolog
 plasma5-applets-volumewin7mixer
+qmasterpassword
 qtwebflix-git
 simple-mtpfs
+spectre-meltdown-checker
+vivaldi
+vivaldi-codecs-ffmpeg-extra-bin
 waterfox-kde-bin
+yakuake-skin-arc-git
 "
 
 sudo pacman -Syu
