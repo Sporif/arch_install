@@ -275,9 +275,12 @@ pac-chroot $BOOTLOADER
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 cat << EOF > /mnt/boot/refind_linux.conf
-"Boot using default options"     "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0"
-"Boot using fallback initramfs"  "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 initrd=/boot/initramfs-linux-fallback.img"
-"Boot to terminal"               "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 systemd.unit=multi-user.target"
+"Boot using default options"            "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered"
+"Boot using fallback initramfs"         "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered initrd=/boot/initramfs-linux-fallback.img"
+"Boot to terminal - multi-user.target"  "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered systemd.unit=multi-user.target"
+"Boot to terminal - rescue.target"      "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered systemd.unit=rescue.target"
+"Boot to terminal - emergency.target"   "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered systemd.unit=emergency.target"
+"Boot to terminal - /bin/bash"          "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered init=/bin/bash"
 EOF
 
 # Xorg
