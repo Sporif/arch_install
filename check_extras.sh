@@ -26,13 +26,16 @@ WINE_OPT_DEPS="$(sed -n '/WINE_OPT_DEPS="/,/"/{//b;p}' packages.sh)"
 AUR="$(sed -n '/AUR="/,/"/{//b;p}' packages.sh)"
 AUR_HELPER="yay-bin"
 
-
-if [ -z "$(lspci | grep NVIDIA)" ]; then
-    echo -e "Defaulting to virtual box\n"
+GRAPHICS=$VIRTUALBOX
+if [ -n "$(lspci | grep -i nvidia)" ]; then
+    GRAPHICS=$NVIDIA
 fi
 
-should_be_installed="$(echo "$BASE $BOOTLOADER $ESSENTIALS $NVIDIA $PLASMA $ABS $AUR $AUR_HELPER" | tr " " "\n" | sort)" 
-#echo "$should_be_installed"
+DESKTOP=$PLASMA
+
+should_be_installed="$(echo "$BASE $BOOTLOADER $ESSENTIALS $GRAPHICS $DESKTOP $ABS $AUR $AUR_HELPER" | tr " " "\n" | sort)" 
+should_be_installed_ABS="$(echo "$BASE $BOOTLOADER $ESSENTIALS $GRAPHICS $DESKTOP $ABS" | tr " " "\n" | sort)" 
+should_be_installed_AUR="$(echo "$AUR $AUR_HELPER" | tr " " "\n" | sort)"
 
 echo -e "\nChecking for installed packages not in install.sh or packages.sh"
 echo "======================================================="
@@ -40,12 +43,27 @@ echo "$(echo "$should_be_installed" | wc -l) packages should be explicitly insta
 echo "$(pacman -Qeq | wc -l) packages actually explicitly installed"
 echo
 
-echo "$(comm -23 <(pacman -Qeq | sort) <(echo "$should_be_installed") | wc -l) extra packages installed:"
+EXTRA_ABS=$(comm -23 <(pacman -Qenq | sort) <(echo "$should_be_installed_ABS"))
+EXTRA_AUR=$(comm -23 <(pacman -Qemq | sort) <(echo "$should_be_installed_AUR"))
+MISSING_ABS=$(comm -13 <(pacman -Qenq | sort) <(echo "$should_be_installed_ABS"))
+MISSING_AUR=$(comm -13 <(pacman -Qemq | sort) <(echo "$should_be_installed_AUR"))
+
+echo "$(echo $EXTRA_ABS | tr " " "\n" | egrep -v "(^[ ]*$|^#)" | wc -l) extra ABS packages installed:"
 echo "======================================================="
-comm -23 <(pacman -Qeq | sort) <(echo "$should_be_installed")
+echo $EXTRA_ABS | tr " " "\n"
 echo
 
-echo "$(comm -13 <(pacman -Qeq | sort) <(echo "$should_be_installed") | wc -l) packages missing:"
+echo "$(echo $EXTRA_AUR | tr " " "\n" | egrep -v "(^[ ]*$|^#)" | wc -l) extra AUR packages installed:"
 echo "======================================================="
-comm -13 <(pacman -Qeq | sort) <(echo "$should_be_installed")
+echo $EXTRA_AUR | tr " " "\n"
+echo
+
+echo "$(echo $MISSING_ABS | tr " " "\n" | egrep -v "(^[ ]*$|^#)" | wc -l) ABS packages missing:"
+echo "======================================================="
+echo $MISSING_ABS | tr " " "\n"
+echo
+
+echo "$(echo $MISSING_AUR | tr " " "\n" | egrep -v "(^[ ]*$|^#)" | wc -l) AUR packages missing:"
+echo "======================================================="
+echo $MISSING_AUR | tr " " "\n"
 echo
