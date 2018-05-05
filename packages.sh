@@ -14,6 +14,7 @@ android-udev
 arch-install-scripts
 ark
 bash-completion
+colordiff
 deadbeef
 displaycal
 dnsmasq
@@ -35,6 +36,8 @@ kdeconnect
 libreoffice-fresh
 libvirt
 ncdu
+neofetch
+nethogs
 noto-fonts
 ntfs-3g
 obs-studio
@@ -48,7 +51,6 @@ qbittorrent
 qemu
 reflector
 rsync
-screenfetch
 speedtest-cli
 sshfs
 steam
