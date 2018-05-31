@@ -74,7 +74,7 @@ GRAPHICS=$VIRTUALBOX
 # Desktop Env
 PLASMA="
 plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk kdeplasma-addons 
-kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil systemd-kcm drkonqi
+kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil drkonqi
 konsole dolphin dolphin-plugins kate yakuake
 "
 DESKTOP=$PLASMA
