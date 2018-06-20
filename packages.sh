@@ -14,6 +14,7 @@ android-udev
 arch-install-scripts
 ark
 bash-completion
+bridge-utils
 colordiff
 deadbeef
 displaycal
@@ -24,6 +25,7 @@ expac
 filelight
 firefox
 git
+glances
 gsmartcontrol
 gwenview
 handbrake
@@ -35,6 +37,7 @@ kcalc
 kdeconnect
 libreoffice-fresh
 libvirt
+lostfiles
 ncdu
 neofetch
 nethogs
@@ -44,6 +47,7 @@ obs-studio
 okular
 openssh
 ovmf
+pacman-contrib
 pacutils
 papirus-icon-theme
 partitionmanager
@@ -52,9 +56,11 @@ qbittorrent
 qemu
 reflector
 rsync
+spectacle
 speedtest-cli
 sshfs
 steam
+systemdgenie
 ttf-liberation
 ttf-dejavu
 veracrypt
@@ -88,10 +94,11 @@ freefilesync
 fsearch-git
 kf5-servicemenus-md5sha1calc
 latte-dock-git
-lostfiles
 masterpassword-gui
 pacmanlogger-git
 pacolog
+pkgbrowser
+plasma5-applets-kde-arch-update-notifier-git
 plasma5-applets-volumewin7mixer
 qmasterpassword
 qtwebflix-git
@@ -100,7 +107,6 @@ spectre-meltdown-checker
 vivaldi
 vivaldi-codecs-ffmpeg-extra-bin
 waterfox-kde-bin
-yakuake-skin-arc-git
 "
 
 sudo pacman -Syu
