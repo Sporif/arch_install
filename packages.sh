@@ -85,6 +85,7 @@ lib32-vulkan-icd-loader
 "
 
 AUR="
+checkrestart
 cylon
 discord
 downgrade
