@@ -36,6 +36,7 @@ jre8-openjdk
 kcalc
 kdeconnect
 libreoffice-fresh
+libva-vdpau-driver
 libvirt
 lostfiles
 ncdu
