@@ -177,7 +177,7 @@ if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == '
     parted -s $EFI_DISK \
     mklabel gpt \
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
-    set ${EFI_PART:~0} boot on \
+    set ${EFI_PART:~0} esp on \
     mkpart primary ext4 $EFI_PART_SIZE $ROOT_PART_SIZE
 fi
 
@@ -191,7 +191,7 @@ if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     parted -s $EFI_DISK \
     mklabel gpt \
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
-    set ${EFI_PART:~0} boot on
+    set ${EFI_PART:~0} esp on
 fi
 
 if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
