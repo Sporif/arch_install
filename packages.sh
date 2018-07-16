@@ -17,6 +17,7 @@ bash-completion
 bridge-utils
 colordiff
 deadbeef
+devtools
 displaycal
 dnsmasq
 dnscrypt-proxy
@@ -86,7 +87,9 @@ lib32-vulkan-icd-loader
 "
 
 AUR="
+bootiso
 checkrestart
+checkupdates-aur
 cylon
 discord
 downgrade
@@ -95,6 +98,7 @@ firefox-beta-bin
 firefox-nightly
 freefilesync
 fsearch-git
+kf5-servicemenus-copypath
 kf5-servicemenus-md5sha1calc
 masterpassword-gui
 pacolog
