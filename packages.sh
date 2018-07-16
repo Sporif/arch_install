@@ -35,6 +35,7 @@ jdk8-openjdk
 jre8-openjdk
 kcalc
 kdeconnect
+latte-dock
 libreoffice-fresh
 libva-vdpau-driver
 libvirt
@@ -95,9 +96,7 @@ firefox-nightly
 freefilesync
 fsearch-git
 kf5-servicemenus-md5sha1calc
-latte-dock-git
 masterpassword-gui
-pacmanlogger-git
 pacolog
 pkgbrowser
 plasma5-applets-kde-arch-update-notifier-git
