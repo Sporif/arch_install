@@ -64,7 +64,7 @@ networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils
 
 # Graphics Drivers
 NVIDIA="
-linux-headers nvidia-dkms lib32-nvidia-utils nvidia-settings
+linux-headers nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 "
 VIRTUALBOX="
 virtualbox-guest-utils virtualbox-guest-modules-arch
