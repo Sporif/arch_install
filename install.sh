@@ -167,7 +167,7 @@ fi
 if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
     echo -e "\n${cyan}Wiping $EFI_DISK${reset}\n"
     sgdisk --zap-all $EFI_DISK
-    wipefs -a -f $EFI_DISK
+    wipefs -all -force $EFI_DISK
     EFI_PART=${EFI_DISK}1
     ROOT_PART=${ROOT_DISK}2
     WIPE_EFI_DISK='true'
@@ -184,7 +184,7 @@ fi
 if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     echo -e "${cyan}Wiping $EFI_DISK${reset}\n"
     sgdisk --zap-all $EFI_DISK
-    wipefs -a -f $EFI_DISK
+    wipefs -all -force $EFI_DISK
     EFI_PART=${EFI_DISK}1
     
     echo -e "\n${cyan}Partitioning $EFI_DISK${reset}\n"
@@ -197,7 +197,7 @@ fi
 if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     echo -e "${cyan}Wiping $ROOT_DISK${reset}\n"
     sgdisk --zap-all $ROOT_DISK
-    wipefs -a -f $ROOT_DISK
+    wipefs -all -force $ROOT_DISK
     ROOT_PART=${ROOT_DISK}1
     
     echo -e "\n${cyan}Partitioning $ROOT_DISK${reset}\n"
@@ -209,13 +209,13 @@ fi
 # Format partitions
 if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then
     echo -e "\n${cyan}Formatting $EFI_PART for EFI${reset}\n"
-    wipefs -a -f $EFI_PART
+    wipefs -all -force $EFI_PART
     mkfs.vfat -F32 $EFI_PART
 fi
 
 if [[ $WIPE_ROOT_PART == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then 
     echo -e "\n${cyan}Formatting $ROOT_PART for ROOT${reset}\n"
-    wipefs -a -f $ROOT_PART
+    wipefs -all -force $ROOT_PART
     mkfs.ext4 $ROOT_PART
 fi
 
