@@ -273,7 +273,7 @@ pac-chroot() {
 echo -e "${green}Installing Boot Manager: Refind${reset}\n"
 pac-chroot $BOOTLOADER
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
-[[ $GRAPHICS == "$VIRTUALBOX" ]] && echo '\EFI\refind\refind_x64.efi' > /mnt/boot/efi/startup.nsh
+[[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt refind-install --usedefault $EFI_PART
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 cat << EOF > /mnt/boot/refind_linux.conf
 "Boot using default options"            "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered"
