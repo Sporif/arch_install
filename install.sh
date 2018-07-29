@@ -127,6 +127,7 @@ echo -e "\n${bold}Your configuration${reset}${bold}${yellow}
  Graphics              | $GRAPHICS
  Desktop               | $DESKTOP
 ==============================================${reset}\n"
+echo -e "lsblk:\n"
 lsblk
 echo
 read -p "Is this correct? (y/n):  " -n 1 -r
