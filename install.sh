@@ -69,7 +69,10 @@ linux-headers nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings
 VIRTUALBOX="
 virtualbox-guest-utils virtualbox-guest-modules-arch
 "
-GRAPHICS=$VIRTUALBOX
+QEMU="
+spice-vdagent qemu-guest-agent
+"
+GRAPHICS=$QEMU
 
 # Desktop Env
 PLASMA="
@@ -273,7 +276,7 @@ pac-chroot() {
 echo -e "${green}Installing Boot Manager: Refind${reset}\n"
 pac-chroot $BOOTLOADER
 [[ ! -f "/mnt/boot/efi/EFI/refind/refind_x64.efi" ]] && arch-chroot /mnt refind-install
-[[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt refind-install --usedefault $EFI_PART
+[[ $GRAPHICS == "$VIRTUALBOX" -o $GRAPHICS == "$QEMU" ]] && arch-chroot /mnt refind-install --usedefault $EFI_PART
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT_PART")"
 cat << EOF > /mnt/boot/refind_linux.conf
 "Boot using default options"            "root=UUID=$ROOT_UUID rw add_efi_memmap intel_idle.max_cstate=0 rootflags=rw,relatime,data=ordered"
