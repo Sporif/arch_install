@@ -172,6 +172,7 @@ if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == '
     echo -e "\n${cyan}Wiping $EFI_DISK${reset}\n"
     sgdisk --zap-all $EFI_DISK
     wipefs --all --force $EFI_DISK
+    partprobe $EFI_DISK
     EFI_PART=${EFI_DISK}1
     ROOT_PART=${ROOT_DISK}2
     WIPE_EFI_DISK='true'
@@ -183,12 +184,14 @@ if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == '
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
     set ${EFI_PART:~0} esp on \
     mkpart primary ext4 $EFI_PART_SIZE $ROOT_PART_SIZE
+    partprobe $EFI_DISK
 fi
 
 if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     echo -e "${cyan}Wiping $EFI_DISK${reset}\n"
     sgdisk --zap-all $EFI_DISK
     wipefs --all --force $EFI_DISK
+    partprobe $EFI_DISK
     EFI_PART=${EFI_DISK}1
     
     echo -e "\n${cyan}Partitioning $EFI_DISK${reset}\n"
@@ -196,18 +199,21 @@ if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     mklabel gpt \
     mkpart ESP fat32 1MiB $EFI_PART_SIZE \
     set ${EFI_PART:~0} esp on
+    partprobe $EFI_DISK
 fi
 
 if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     echo -e "${cyan}Wiping $ROOT_DISK${reset}\n"
     sgdisk --zap-all $ROOT_DISK
     wipefs --all --force $ROOT_DISK
+    partprobe $ROOT_DISK
     ROOT_PART=${ROOT_DISK}1
     
     echo -e "\n${cyan}Partitioning $ROOT_DISK${reset}\n"
     parted -s $ROOT_DISK \
     mklabel gpt \
     mkpart primary ext4 1MiB $ROOT_PART_SIZE
+    partprobe $ROOT_DISK
 fi
 
 # Format partitions
