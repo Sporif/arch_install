@@ -70,7 +70,7 @@ VIRTUALBOX="
 virtualbox-guest-utils virtualbox-guest-modules-arch
 "
 QEMU="
-spice-vdagent qemu-guest-agent
+spice-vdagent qemu-guest-agent xf86-video-qxl
 "
 GRAPHICS=$QEMU
 
