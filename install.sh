@@ -257,6 +257,11 @@ arch-chroot /mnt locale-gen
 echo "LANG=$LOCALE" > /mnt/etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /mnt/etc/vconsole.conf
 echo "$HOSTNAME" > /mnt/etc/hostname
+cat << EOF >> /mnt/etc/hosts
+127.0.0.1       localhost
+::1             localhost
+127.0.0.1       ${HOSTNAME}.localdomain    $HOSTNAME
+EOF
 arch-chroot /mnt systemctl enable fstrim.timer
 
 # Pacman
