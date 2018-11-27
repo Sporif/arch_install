@@ -170,7 +170,6 @@ fi
 
 if [[ $SAME_DEVICE == "true" && $WIPE_EFI_DISK == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then
     echo -e "\n${cyan}Wiping $EFI_DISK${reset}\n"
-    sgdisk --zap-all $EFI_DISK
     wipefs --all --force $EFI_DISK
     partprobe $EFI_DISK
     EFI_PART=${EFI_DISK}1
@@ -189,7 +188,6 @@ fi
 
 if [[ $WIPE_EFI_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     echo -e "${cyan}Wiping $EFI_DISK${reset}\n"
-    sgdisk --zap-all $EFI_DISK
     wipefs --all --force $EFI_DISK
     partprobe $EFI_DISK
     EFI_PART=${EFI_DISK}1
@@ -204,7 +202,6 @@ fi
 
 if [[ $WIPE_ROOT_DISK == 'true' && $SAME_DEVICE != 'true' ]]; then
     echo -e "${cyan}Wiping $ROOT_DISK${reset}\n"
-    sgdisk --zap-all $ROOT_DISK
     wipefs --all --force $ROOT_DISK
     partprobe $ROOT_DISK
     ROOT_PART=${ROOT_DISK}1
