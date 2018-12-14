@@ -14,38 +14,37 @@ set -euo pipefail
 ## Configuration ##
 ###################
 
-# Partitioning
+## PARTITIONING
 # If these partitions do not exist, either make them or set WIPE_EFI_DISK and/or WIPE_ROOT_DISK to true
 EFI_PART="/dev/sda1"
 ROOT_PART="/dev/sda2"
 
 # These need to be true if the containing disk(s) is not GPT or the partitions don't exist
-# If EFI and ROOT are on same disk then either can be set to true to wipe it
+# If EFI and ROOT are on the same disk then either can be set to true to wipe it
 # If the containing disk(s) are being wiped then partition numbers specified above will be ignored
-WIPE_EFI_DISK="false" # true: disk containing EFI_PART will be zapped and wiped
-WIPE_ROOT_DISK="false" # true: disk containing ROOT_PART will be zapped and wiped
+WIPE_EFI_DISK="false" # true: the disk containing EFI_PART will be wiped
+WIPE_ROOT_DISK="false" # true: the disk containing ROOT_PART will be wiped
 
-# These are irrelevant if containing disk is being wiped
-WIPE_EFI_PART="false" # Shouldn't be true if you want to keep other OSs in EFI
-WIPE_ROOT_PART="true" # Should normally be true, unless there's data you want to keep, e.g. /home
+# These are irrelevant if the containing disk is being wiped
+WIPE_EFI_PART="false" # Should not be true if you want to keep other OSs in EFI
+WIPE_ROOT_PART="true" # Should normally be true, unless there is data you want to keep, e.g. /home
 
-# These are only used if containing disk is being wiped 
+# These are only used if the containing disk is being wiped 
 EFI_PART_SIZE=513MiB
 ROOT_PART_SIZE=100%
 
-# Settings
+## SETTINGS
 MIRROR="GB"
 TIMEZONE="Europe/London"
 LOCALE="en_GB.UTF-8"
 KEYMAP="us"
+X11_KEYMAP="gb"
 HOSTNAME="arch-pc"
-
-# User
 USER_NAME="arch"
 ROOT_PASSWORD="arch"
 USER_PASSWORD="arch"
 
-## Packages
+## PACKAGES
 
 # Boot Loader
 BOOTLOADER="
@@ -120,6 +119,7 @@ echo -e "\n${bold}Your configuration${reset}${bold}${yellow}
  Timezone              | $TIMEZONE
  Locale                | $LOCALE
  Keymap                | $KEYMAP
+ X11_Keymap            | $X11_KEYMAP
  Hostname              | $HOSTNAME
  Username              | $USER_NAME
  
@@ -136,7 +136,7 @@ echo
 read -p "Is this correct? (y/n):  " -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "\n${red}Please change the settings at the start of the script${reset}\n"
+    echo -e "\n${red}Then change the settings at the start of the script${reset}\n"
     exit 1
 fi
 
@@ -298,6 +298,13 @@ EOF
 # Xorg
 echo -e "\n${green}Installing Xorg${reset}\n"
 pac-chroot $XORG
+cat << EOF > /etc/X11/xorg.conf.d/60-keyboard-layout.conf
+Section "InputClass"
+        Identifier "system-keyboard"
+        MatchIsKeyboard "on"
+        Option "XkbLayout" "${X11_KEYMAP}"
+EndSection
+EOF
 
 # Network, Audio & Bluetooth
 echo -e "\n${green}Installing Network, Audio & Bluetooth${reset}\n"
@@ -308,6 +315,7 @@ arch-chroot /mnt systemctl enable bluetooth
 # Graphics Drivers
 echo -e "\n${green}Installing Graphics Drivers${reset}\n"
 pac-chroot $GRAPHICS
+[[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable qemu-ga
 [[ $GRAPHICS == "$VIRTUALBOX" ]] && arch-chroot /mnt systemctl enable vboxservice
 
 # Desktop Env
