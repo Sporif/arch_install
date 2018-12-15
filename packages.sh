@@ -107,16 +107,27 @@ vivaldi-codecs-ffmpeg-extra-bin
 waterfox-kde-bin
 "
 
+echo -e "Doing full update first:\n"
 sudo pacman -Syu
+echo -e "\n\nInstalling ABS packages:\n"
 sudo pacman -S --noconfirm --needed $ABS
 sudo pacman -S --noconfirm --needed --asdeps $WINE_OPT_DEPS
+echo -e "\n\n"
 
 if [ ! -f /usr/bin/yay ]; then
+    echo -e "Installing yay:\n"
     git clone https://aur.archlinux.org/yay-bin.git
-    cd yay-bin
-    makepkg -sric --noconfirm --needed
-    cd ../
+    cd yay-bin && \
+    makepkg -sric --noconfirm --needed && \
+    cd ../ && \
     rm -rf yay-bin
+else
+    echo -e "/usr/bin/yay already found"
 fi
 
-yay -S --noconfirm --needed $AUR
+if [ -f /usr/bin/yay ]; then
+    echo -e "\nInstalling AUR packages:\n"
+    yay -S --noconfirm --needed $AUR
+else
+    echo -e "\nERROR: /usr/bin/yay not found, can't install AUR packages"
+fi
