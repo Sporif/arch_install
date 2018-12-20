@@ -217,7 +217,7 @@ fi
 if [[ $WIPE_EFI_PART == 'true' || $WIPE_EFI_DISK == 'true' ]]; then
     echo -e "\n${cyan}Formatting $EFI_PART for EFI${reset}\n"
     wipefs --all --force $EFI_PART
-    mkfs.vfat -F32 $EFI_PART
+    mkfs.vfat -F 32 $EFI_PART
 fi
 
 if [[ $WIPE_ROOT_PART == 'true' || $WIPE_ROOT_DISK == 'true' ]]; then 
