@@ -93,8 +93,8 @@ reset=$(tput sgr0)
 echo -e "\n${bold}Your configuration${reset}${bold}${yellow}
 ==============================================
            Partitioning:
- EFI                   | $EFI_PART
- ROOT                  | $ROOT_PART
+ EFI Partition         | $EFI_PART
+ ROOT Partition        | $ROOT_PART
  Wipe EFI Disk         | $WIPE_EFI_DISK
  Wipe ROOT Disk        | $WIPE_ROOT_DISK
  Wipe EFI Partition    | $WIPE_EFI_PART
