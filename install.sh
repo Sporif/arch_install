@@ -114,7 +114,7 @@ echo -e "\n${bold}Your configuration${reset}${bold}${yellow}
  Username              | $USER_NAME
 
                Packages:
- Base                     | $BASE_PKGS
+ Base                  | $BASE_PKGS
  Boot Loader           | $BOOTLOADER
  Xorg                  | $XORG
  Essentials            | $ESSENTIALS
