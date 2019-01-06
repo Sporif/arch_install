@@ -43,10 +43,13 @@ echo "$(echo "$should_be_installed" | wc -l) packages should be explicitly insta
 echo "$(pacman -Qeq | wc -l) packages actually explicitly installed"
 echo
 
-EXTRA_ABS=$(comm -23 <(pacman -Qenq | sort) <(echo "$should_be_installed_ABS"))
-EXTRA_AUR=$(comm -23 <(pacman -Qemq | sort) <(echo "$should_be_installed_AUR"))
-MISSING_ABS=$(comm -13 <(pacman -Qenq | sort) <(echo "$should_be_installed_ABS"))
-MISSING_AUR=$(comm -13 <(pacman -Qemq | sort) <(echo "$should_be_installed_AUR"))
+ABS_NATIVE=$(pacman -Qenq | sort)
+ABS_FOREIGN=$(pacman -Qemq | sort)
+
+EXTRA_ABS=$(comm -23 <(echo "$ABS_NATIVE") <(echo "$should_be_installed_ABS"))
+EXTRA_AUR=$(comm -23 <(echo "$ABS_FOREIGN") <(echo "$should_be_installed_AUR"))
+MISSING_ABS=$(comm -13 <(echo "$ABS_NATIVE") <(echo "$should_be_installed_ABS"))
+MISSING_AUR=$(comm -13 <(echo "$ABS_FOREIGN") <(echo "$should_be_installed_AUR"))
 
 echo "$(echo $EXTRA_ABS | tr " " "\n" | egrep -v "(^[ ]*$|^#)" | wc -l) extra ABS packages installed:"
 echo "======================================================="
