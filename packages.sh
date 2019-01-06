@@ -75,10 +75,25 @@ wireguard-tools
 "
 
 WINE_OPT_DEPS="
+lib32-alsa-lib
+lib32-alsa-plugins
+lib32-giflib
 lib32-gnutls
+lib32-gst-plugins-base-libs
+lib32-gtk3
+lib32-libjpeg-turbo
 lib32-libldap
+lib32-libpng
 lib32-libpulse
+lib32-libva
+lib32-libxcomposite
+lib32-libxinerama
+lib32-libxslt
+lib32-mpg123
+lib32-ncurses
 lib32-openal
+lib32-sdl2
+lib32-v4l-utils
 lib32-vulkan-icd-loader
 "
 
@@ -111,7 +126,7 @@ echo -e "Doing full update first:\n"
 sudo pacman -Syu
 echo -e "\n\nInstalling ABS packages:\n"
 sudo pacman -S --noconfirm --needed $ABS
-sudo pacman -S --noconfirm --needed --asdeps $WINE_OPT_DEPS
+sudo pacman -S --noconfirm --needed $WINE_OPT_DEPS
 echo -e "\n\n"
 
 if [ ! -f /usr/bin/yay ]; then
