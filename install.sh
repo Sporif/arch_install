@@ -287,10 +287,7 @@ BASE_BOOT_FLAGS="root=UUID=$ROOT_UUID rw intel_idle.max_cstate=0 rootflags=${ROO
 cat << EOF > "${MOUNT}"/boot/refind_linux.conf
 "Boot using default options"                     "${BASE_BOOT_FLAGS}"
 "Boot using fallback initramfs"                 "${BASE_BOOT_FLAGS} initrd=/boot/initramfs-linux-fallback.img"
-"Boot to terminal - multi-user.target"     "${BASE_BOOT_FLAGS} systemd.unit=multi-user.target"
 "Boot to terminal - rescue.target"           "${BASE_BOOT_FLAGS} systemd.unit=rescue.target"
-"Boot to terminal - emergency.target"   "${BASE_BOOT_FLAGS} systemd.unit=emergency.target"
-"Boot to terminal - /bin/bash"                  "${BASE_BOOT_FLAGS} init=/bin/bash"
 EOF
 
 # Xorg
