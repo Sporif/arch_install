@@ -51,7 +51,7 @@ set -euo pipefail
 
     ## PACKAGES
     # Base
-    BASE_PKGS="base base-devel btrfs-progs e2fsprogs xfsprogs linux linux-firmware nano man-db man-pages usbutils"
+    BASE_PKGS="base base-devel btrfs-progs e2fsprogs xfsprogs linux linux-firmware bash-completion nano man-db man-pages usbutils"
     # Boot Loader
     BOOTLOADER="refind-efi"
     # Xorg
