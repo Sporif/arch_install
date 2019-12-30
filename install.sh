@@ -55,9 +55,8 @@ set -euo pipefail
     # Boot Loader
     BOOTLOADER="refind-efi"
     # Xorg
-    XORG="xorg-bdftopcf xorg-font-util xorg-fonts-encodings xorg-mkfontscale xorg-server xorg-setxkbmap xorg-xauth
-    xorg-xdpyinfo xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkbcomp xorg-xkill xorg-xlsclients xorg-xmodmap xorg-xprop
-    xorg-xrandr xorg-xrdb xorg-xset xorg-xsetroot xorg-xwininfo"
+    XORG="xorg-server xorg-xauth xorg-xdpyinfo xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkill xorg-xlsclients 
+    xorg-xmodmap xorg-xprop xorg-xrandr xorg-xrdb xorg-xset xorg-xsetroot xorg-xwininfo"
     # Essentials
     ESSENTIALS="networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils"
     # Graphics Drivers
