@@ -55,7 +55,7 @@ set -euo pipefail
     # Boot Loader
     BOOTLOADER="refind-efi"
     # Xorg
-    XORG="xorg-server xorg-xauth xorg-xdpyinfo xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkill xorg-xlsclients 
+    XORG="xorg-server xorg-xauth xorg-xdpyinfo xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkill xorg-xlsclients
     xorg-xmodmap xorg-xprop xorg-xrandr xorg-xrdb xorg-xset xorg-xsetroot xorg-xwininfo"
     # Essentials
     ESSENTIALS="networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils"
