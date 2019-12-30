@@ -35,8 +35,8 @@ set -euo pipefail
     ROOT_PART_SIZE="100%"
 
     # Root filesystem and mount flags
-    ROOTFS="ext4"
-    ROOTFLAGS="rw,noatime,data=ordered"
+    ROOTFS="btrfs"
+    ROOTFLAGS="noatime,compress-force=zstd,subvol=@"
 
     ## SETTINGS
     MIRROR="GB"
@@ -44,8 +44,8 @@ set -euo pipefail
     LOCALE="en_GB.UTF-8"
     KEYMAP="us"
     X11_KEYMAP="gb"
-    HOSTNAME="arch-pc"
-    USER_NAME="arch"
+    HOSTNAME="sporif-pc"
+    USER_NAME="sporif"
     ROOT_PASSWORD="arch"
     USER_PASSWORD="arch"
 
@@ -55,7 +55,9 @@ set -euo pipefail
     # Boot Loader
     BOOTLOADER="refind-efi"
     # Xorg
-    XORG="xorg"
+    XORG="xorg-bdftopcf xorg-font-util xorg-fonts-encodings xorg-mkfontscale xorg-server-custom-git xorg-setxkbmap xorg-xauth
+    xorg-xdpyinfo xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkbcomp xorg-xkill xorg-xlsclients xorg-xmodmap xorg-xprop
+    xorg-xrandr xorg-xrdb xorg-xset xorg-xsetroot xorg-xwininfo"
     # Essentials
     ESSENTIALS="networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils"
     # Graphics Drivers
@@ -266,7 +268,7 @@ arch-chroot "${MOUNT}" pacman -Syu --noconfirm
 # User
 echo -e "\n${cyan}Setting up user: $USER_NAME${reset}\n"
 arch-chroot "${MOUNT}" useradd -m -G wheel -s /bin/bash $USER_NAME
-echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > "${MOUNT}"/etc/sudoers.d/99_wheel 
+echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > "${MOUNT}"/etc/sudoers.d/99_wheel
 echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root "${MOUNT}"
 echo "root:$ROOT_PASSWORD" | chpasswd --root "${MOUNT}"
 
