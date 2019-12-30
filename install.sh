@@ -65,7 +65,7 @@ set -euo pipefail
     QEMU="spice-vdagent qemu-guest-agent xf86-video-qxl"
     GRAPHICS=$QEMU
     # Desktop Env
-    PLASMA="sddm polkit-kde-agent plasma-pa plasma-nm kde-gtk-config breeze-gtk kdeplasma-addons
+    PLASMA="sddm kwin polkit-kde-agent plasma-pa plasma-nm kde-gtk-config breeze-gtk kdeplasma-addons
     systemsettings sddm-kcm kscreen powerdevil user-manager kaccounts-providers kwalletmanager
     ksysguard konsole dolphin dolphin-plugins kate kinfocenter"
     DESKTOP=$PLASMA
