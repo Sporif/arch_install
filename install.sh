@@ -230,7 +230,7 @@ mount $EFI_PART "${MOUNT}"/boot/efi
 
 # Mirrorlist
 echo -e "${cyan}Setting Mirrorlist: $MIRROR${reset}\n"
-mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup 
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 wget "https://www.archlinux.org/mirrorlist/?country=${MIRROR}&use_mirror_status=on" -O /etc/pacman.d/mirrorlist
 sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist
 
@@ -268,7 +268,7 @@ arch-chroot "${MOUNT}" pacman -Syu --noconfirm
 # User
 echo -e "\n${cyan}Setting up user: $USER_NAME${reset}\n"
 arch-chroot "${MOUNT}" useradd -m -G wheel -s /bin/bash $USER_NAME
-echo -e "%wheel ALL=(ALL) ALL\nDefaults rootpw" > "${MOUNT}"/etc/sudoers.d/99_wheel
+echo -e "Defaults:%wheel rootpw\n%wheel ALL=(ALL) ALL" > "${MOUNT}"/etc/sudoers.d/99_wheel
 echo "$USER_NAME:$USER_PASSWORD" | chpasswd --root "${MOUNT}"
 echo "root:$ROOT_PASSWORD" | chpasswd --root "${MOUNT}"
 
