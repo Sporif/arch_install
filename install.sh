@@ -58,16 +58,16 @@ set -euo pipefail
     XORG="xorg-server xorg-xauth xorg-xdpyinfo xorg-xev xorg-xhost xorg-xinit xorg-xinput xorg-xkill xorg-xlsclients
     xorg-xmodmap xorg-xprop xorg-xrandr xorg-xrdb xorg-xset xorg-xsetroot xorg-xwininfo"
     # Essentials
-    ESSENTIALS="networkmanager pulseaudio pulseaudio-alsa pulseaudio-bluetooth bluez bluez-utils"
+    ESSENTIALS="networkmanager pulseaudio pulseaudio-alsa"
     # Graphics Drivers
     NVIDIA="linux-headers nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings"
     VIRTUALBOX="virtualbox-guest-utils virtualbox-guest-modules-arch"
     QEMU="spice-vdagent qemu-guest-agent xf86-video-qxl"
     GRAPHICS=$QEMU
     # Desktop Env
-    PLASMA="plasma-desktop sddm sddm-kcm plasma-pa plasma-nm bluedevil kinfocenter kde-gtk-config breeze-gtk kdeplasma-addons
-    kwalletmanager user-manager kaccounts-providers kscreen colord-kde powerdevil drkonqi
-    konsole dolphin dolphin-plugins kate yakuake"
+    PLASMA="sddm polkit-kde-agent plasma-pa plasma-nm kde-gtk-config breeze-gtk kdeplasma-addons
+    systemsettings sddm-kcm kscreen powerdevil user-manager kaccounts-providers kwalletmanager
+    ksysguard konsole dolphin dolphin-plugins kate kinfocenter"
     DESKTOP=$PLASMA
 
 #########
@@ -307,7 +307,7 @@ EOF
 # Essentials
 echo -e "\n${green}Installing Essentials${reset}\n"
 pac-chroot $ESSENTIALS
-arch-chroot "${MOUNT}" systemctl enable NetworkManager bluetooth
+arch-chroot "${MOUNT}" systemctl enable NetworkManager
 
 # Graphics Drivers
 echo -e "\n${green}Installing Graphics Drivers${reset}\n"
